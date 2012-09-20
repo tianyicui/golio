@@ -1,12 +1,15 @@
+open Parser
+
 let lex str =
     let lb = Lexing.from_string str in
     let rec run() = match (Lexer.tokens lb) with
-        `Eof   -> [`Eof]
+        EOF   -> [EOF]
       | x -> x :: run()
     in (run())
 ;;
 
-match (lex "'(abc 123)") with
-    [`Quote; `LeftParenthesis; `Symbol "abc"; `Number 123; `RightParenthesis;
-        `Eof] -> ()
-  | _ -> assert false
+match (lex "'(a-bc-2 1024)") with
+    [QUOTE; LPAREN; SYMBOL "a-bc-2"; NUMBER 1024; RPAREN; EOF] -> ()
+;
+
+Printf.printf "All passed!\n"
