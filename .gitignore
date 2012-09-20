@@ -1,9 +1,12 @@
+*.a
 *.annot
-*.cmo
+*.byte
 *.cma
 *.cmi
-*.a
-*.o
+*.cmo
 *.cmx
-*.cmxs
 *.cmxa
+*.cmxs
+*.native
+*.o
+_build/

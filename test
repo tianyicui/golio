@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -ex
+
+for file in *_test.ml
+do
+	byte=$(echo $file | sed -e 's/\.ml$/\.native/')
+	ocamlbuild $byte
+	./$byte
+done
