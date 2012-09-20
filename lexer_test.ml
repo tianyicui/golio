@@ -8,7 +8,7 @@ let lex str =
     in (run())
 ;;
 
-match (lex "'(a-bc-2 1024)") with
+match (lex "'(a-bc-2 1024) ; comment") with
     [QUOTE; LPAREN; SYMBOL "a-bc-2"; NUMBER 1024; RPAREN; EOF] -> ()
 ;
 

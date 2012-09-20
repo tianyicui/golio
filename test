@@ -8,8 +8,8 @@ normal=`tput sgr0`
 for file in *_test.ml
 do
 	byte=$(echo $file | sed -e 's/\.ml$/\.native/')
-	echo "${bold}ocamlbuild $byte${normal}"
+	echo "${bold}>>> ocamlbuild $byte${normal}"
 	ocamlbuild $byte
-	echo "${bold}./$byte${normal}"
+	echo "${bold}>>> ./$byte${normal}"
 	./$byte
 done

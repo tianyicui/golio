@@ -44,13 +44,22 @@ match parse "(a)(b)" with
     [List [Symbol "a"]; List [Symbol "b"]] -> ()
 ;
 
-match parse "(define ((compose f g) x)  (f (g x)))" with
+match parse "; the compose function
+(define ((compose f g) x)  (f (g x)))" with
     [List [Symbol "define";
            List [List [Symbol "compose"; Symbol "f"; Symbol "g"];
                  Symbol "x"];
            List [Symbol "f";
                  List [Symbol "g"; Symbol "x"]]]]
       -> ()
+;
+
+match parse "; comment 1
+(a b) ; comment 2
+; comment 3
+(c d) ; comment 4" with
+    [List [Symbol "a"; Symbol "b"];
+     List [Symbol "c"; Symbol "d"]] -> ()
 ;
 
 Printf.printf "All passed!\n"
