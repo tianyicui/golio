@@ -5,62 +5,48 @@ let parse str =
 ;;
 
 let _ =
-    match parse "1" with
-        [Number 1] -> ()
-    ;
+    let test str rst =
+        assert (parse str = rst)
+    in
 
-    match parse "test-token" with
-        [Symbol "test-token"] -> ()
-    ;
+    test "1" [Number 1];
 
-    match parse "()" with
-        [List []] -> ()
-    ;
+    test "test-token" [Symbol "test-token"];
 
-    match parse "(make-chan)" with
-        [List [Symbol "make-chan"]] -> ()
-    ;
+    test "()" [List []];
 
-    match parse "'1" with
-        [List [Symbol "quote"; Number 1]] -> ()
-    ;
+    test "(make-chan)" [List [Symbol "make-chan"]];
 
-    match parse "'sym" with
-        [List [Symbol "quote"; Symbol "sym"]] -> ()
-    ;
+    test "'1" [List [Symbol "quote"; Number 1]];
 
-    match parse "'()" with
-        [List [Symbol "quote"; List []]] -> ()
-    ;
+    test "'sym" [List [Symbol "quote"; Symbol "sym"]];
 
-    match parse "(+ (* 3 4) (- 4 5) (/ 2 1))" with
+    test "'()" [List [Symbol "quote"; List []]];
+
+    test "(+ (* 3 4) (- 4 5) (/ 2 1))"
         [List [Symbol "+";
                List [Symbol "*"; Number 3; Number 4];
                List [Symbol "-"; Number 4; Number 5];
                List [Symbol "/"; Number 2; Number 1]]]
-          -> ()
     ;
 
-    match parse "(a)(b)" with
-        [List [Symbol "a"]; List [Symbol "b"]] -> ()
-    ;
+    test "(a)(b)" [List [Symbol "a"]; List [Symbol "b"]];
 
-    match parse "; the compose function
-    (define ((compose f g) x)  (f (g x)))" with
+    test "; the compose function
+          (define ((compose f g) x)  (f (g x)))"
         [List [Symbol "define";
                List [List [Symbol "compose"; Symbol "f"; Symbol "g"];
                      Symbol "x"];
                List [Symbol "f";
                      List [Symbol "g"; Symbol "x"]]]]
-          -> ()
     ;
 
-    match parse "; comment 1
-    (a b) ; comment 2
-    ; comment 3
-    (c d) ; comment 4" with
+    test "; comment 1
+          (a b) ; comment 2
+          ; comment 3
+          (c d) ; comment 4"
         [List [Symbol "a"; Symbol "b"];
-         List [Symbol "c"; Symbol "d"]] -> ()
+         List [Symbol "c"; Symbol "d"]]
     ;
 
     Printf.printf "All passed!\n"

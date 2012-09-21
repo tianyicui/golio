@@ -8,9 +8,13 @@ let lex str =
     in (run())
 ;;
 
+
 let _ =
-    match (lex "'(a-bc-2 1024) ; comment") with
-        [QUOTE; LPAREN; SYMBOL "a-bc-2"; NUMBER 1024; RPAREN; EOF] -> ()
-    ;
+    let test str rst =
+        assert (lex str = rst)
+    in
+
+    test "'(a-bc-2 1024) ; comment"
+        [QUOTE; LPAREN; SYMBOL "a-bc-2"; NUMBER 1024; RPAREN; EOF];
 
     Printf.printf "All passed!\n"
