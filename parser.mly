@@ -8,19 +8,21 @@ open Sexp
 %token <string> STRING
 %token <bool> BOOL
 %start parse
-%type< Sexp.sexp list > parse
+%type< Sexp.sexp option> parse
 %%
 
 parse:
-    exprs EOF { $1 }
+  | EOF { None }
+  | expr { Some $1 }
+;
 
 exprs:
-    expr exprs { $1 :: $2 }
+  | expr exprs { $1 :: $2 }
   | expr { [$1] }
 ;
 
 expr:
-    NUMBER { Number $1 }
+  | NUMBER { Number $1 }
   | ATOM { Atom $1 }
   | STRING { String $1 }
   | BOOL { Bool $1 }
@@ -28,3 +30,4 @@ expr:
   | LPAREN exprs DOT expr RPAREN { DottedList ($2, $4) }
   | LPAREN RPAREN { List [] }
   | QUOTE expr { List [Atom "quote" ; $2] }
+;
