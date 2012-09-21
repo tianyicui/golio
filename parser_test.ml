@@ -1,13 +1,8 @@
 open Sexp
 
-let parse str =
-    Parser.parse Lexer.tokens (Lexing.from_string str)
-;;
-
 let _ =
     let test str rst =
-        assert (parse str = rst)
-    in
+        assert (Helper.parse str = rst) in
 
     test "1" [Number 1];
 

@@ -5,9 +5,10 @@ set -e
 bold=`tput bold`
 normal=`tput sgr0`
 
+
 for file in *_test.ml
 do
 	byte=$(echo $file | sed -e 's/\.ml$/\.d.byte/')
 	echo "${bold}>>> ./$byte${normal}"
-	OCAMLRUNPARAM=b ocamlbuild $byte --
+	OCAMLRUNPARAM=b ocamlbuild -no-links $byte --
 done
