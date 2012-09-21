@@ -8,7 +8,7 @@ let _ =
         match parse () with
         | None -> exit 0
         | Some sexp ->
-            let str = Helper.print_sexp sexp in
-            assert (Helper.parse_str str = [sexp]);
-            printf "%s\n" str
+            let open Helper in
+            assert (parse_str (print_sexp sexp) = [sexp]);
+            printf "%s\n" (print_sexp (Eval.eval sexp))
     done

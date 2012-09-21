@@ -1,3 +1,6 @@
+let compose f g = fun x -> f (g x)
+;;
+
 let parse_str str =
     let lb = Lexing.from_string str in
     let rec go () =
@@ -22,4 +25,9 @@ let rec print_sexp sexp =
     | DottedList (lst, cdr) ->
             "(" ^ String.concat " " (List.map print_sexp lst) ^ " . " ^
                 (print_sexp cdr) ^ ")"
+;;
+
+let repl_str str =
+    String.concat "\n"
+        (List.map (compose print_sexp Eval.eval) (parse_str str))
 ;;

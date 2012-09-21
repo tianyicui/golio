@@ -25,11 +25,11 @@ let _ =
 
     test "'()" [List [Atom "quote"; List []]];
 
-    test "(+ (* 3 4) (- 4 5) (/ 2 1))"
+    test "(+ (* 3 4) (- -4 5) (/ 2 -1))"
         [List [Atom "+";
                List [Atom "*"; Number 3; Number 4];
-               List [Atom "-"; Number 4; Number 5];
-               List [Atom "/"; Number 2; Number 1]]]
+               List [Atom "-"; Number (-4); Number 5];
+               List [Atom "/"; Number 2; Number (-1)]]]
     ;
 
     test "(a)(b)" [List [Atom "a"]; List [Atom "b"]];

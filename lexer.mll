@@ -12,7 +12,7 @@ rule tokens = parse
   | ''' { QUOTE }
   | '.' { DOT }
   | ';' { comments lexbuf }
-  | ['1'-'9'] ['0'-'9']* as number { NUMBER (int_of_string number) }
+  | '-'? ['1'-'9'] ['0'-'9']* as number { NUMBER (int_of_string number) }
   | '"' (([^'"''\\'] | ('\\' _))* as str) '"' {
       Scanf.sscanf ("\"" ^ str ^ "\"") "%S%!" (fun s -> STRING s)
     }
