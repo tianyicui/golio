@@ -2,9 +2,10 @@ open Parser
 
 let lex str =
     let lb = Lexing.from_string str in
-    let rec run() = match (Lexer.tokens lb) with
-        EOF   -> [EOF]
-      | x -> x :: run()
+    let rec run() =
+        match (Lexer.tokens lb) with
+        | EOF   -> [EOF]
+        | x -> x :: run()
     in (run())
 ;;
 

@@ -7,7 +7,7 @@ let character =
         '@' '^' '_' '~']
 
 rule tokens = parse
-    '(' { LPAREN }
+  | '(' { LPAREN }
   | ')' { RPAREN }
   | ''' { QUOTE }
   | '.' { DOT }
@@ -18,14 +18,14 @@ rule tokens = parse
     }
   | character (character | ['0'-'9'])* as atom {
       match atom with
-          "#t" -> BOOL true
-        | "#f" -> BOOL false
-        | _    -> ATOM atom
+      | "#t" -> BOOL true
+      | "#f" -> BOOL false
+      | _    -> ATOM atom
     }
   | eof { EOF }
   | (' ' | '\t' | '\r' | '\n') { tokens lexbuf }
   | _ { raise Parsing.Parse_error }
 and comments = parse
-    '\n' { tokens lexbuf }
+  |  '\n' { tokens lexbuf }
   | eof { EOF }
   | _ { comments lexbuf }
