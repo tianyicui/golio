@@ -2,5 +2,6 @@ Sexp
 Lexer
 Parser
 Helper
+Primitives
 Eval
 Repl
