@@ -1,7 +1,7 @@
 let repl in_c out_c is_interactive =
     let lb = Lexing.from_channel in_c in
     let parse () = Parser.parse Lexer.tokens lb in
-    let rec go () =
+    let rec go env =
         let open Printf in
         begin if is_interactive then
             fprintf out_c "> ";
@@ -10,7 +10,11 @@ let repl in_c out_c is_interactive =
         match parse () with
         | None -> ()
         | Some sexp ->
-            fprintf out_c "%s\n" (Sexp.print_sexp (Eval.eval sexp));
-            go ()
-    in go ()
+            let env', rst = Eval.eval env sexp in
+            begin match rst with
+            | Sexp.Undefined -> ()
+            | _ -> fprintf out_c "%s\n" (Sexp.print_sexp rst)
+            end;
+            go env';
+    in go Sexp.empty_env
 ;;
