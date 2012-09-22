@@ -9,7 +9,7 @@ let unpack_num sexp =
 ;;
 let unpack_sym sexp =
     match sexp with
-    | Atom sym -> sym
+    | Symbol sym -> sym
     | _ -> invalid_arg "unpack_sym: expected a symbol"
 ;;
 let unpack_str sexp =
@@ -56,7 +56,7 @@ let unary_op op params =
 
 let is_symbol arg =
     match arg with
-    | Atom _ -> Bool true
+    | Symbol _ -> Bool true
     | _ -> Bool false
 ;;
 let is_number arg =
@@ -84,7 +84,7 @@ let string_to_symbol arg =
     String (unary_op unpack_sym arg)
 ;;
 let symbol_to_string arg =
-    Atom (unary_op unpack_str arg)
+    Symbol (unary_op unpack_str arg)
 ;;
 
 let car param =
@@ -110,7 +110,7 @@ let cons hd tl =
 let eqv a b =
     match a, b with
     | Bool x, Bool y -> x = y
-    | Atom x, Atom y -> x = y
+    | Symbol x, Symbol y -> x = y
     | Number x, Number y -> x = y
     | List [], List [] -> true
     | _ -> a == b

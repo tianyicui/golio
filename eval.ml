@@ -79,7 +79,7 @@ and if_ env params =
 
 and define env params =
     match params with
-    | [Atom var; expr] ->
+    | [Symbol var; expr] ->
         let env', value = eval env expr in
         def_var var value env, Undefined
     | [_; _] -> invalid_arg "define: first argument should be a symbol"
@@ -87,7 +87,7 @@ and define env params =
 
 and set env params =
     match params with
-    | [Atom var; expr] ->
+    | [Symbol var; expr] ->
         let env', value = eval env expr in
         set_var var value env, Undefined
     | [_; _] -> invalid_arg "set: first argument should be a symbol"
@@ -114,8 +114,8 @@ and eval_list env sexp_list =
 and eval env sexp =
     match sexp with
     | String _ | Number _ | Bool _ -> (env, sexp)
-    | Atom id -> (env, get_var id env)
-    | List (Atom id :: args) ->
+    | Symbol id -> (env, get_var id env)
+    | List (Symbol id :: args) ->
             let macros = Lazy.force lazy_macros in
             begin try expand env id args macros
             with Not_found ->

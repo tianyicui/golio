@@ -3,7 +3,7 @@ module M = Map.Make(String)
 
 type sexp =
     | Number of int
-    | Atom of string
+    | Symbol of string
     | String of string
     | Bool of bool
     | List of sexp list
@@ -16,11 +16,11 @@ let rec print_sexp sexp =
     let open Printf in
     match sexp with
     | Number num -> sprintf "%i" num
-    | Atom str -> sprintf "%s" str
+    | Symbol str -> sprintf "%s" str
     | String str -> sprintf "%S" str
     | Bool true -> sprintf "#t"
     | Bool false -> sprintf "#f"
-    | List [Atom "quote"; p] -> "'" ^ print_sexp p
+    | List [Symbol "quote"; p] -> "'" ^ print_sexp p
     | List lst ->
             "(" ^ String.concat " " (List.map print_sexp lst) ^ ")"
     | DottedList (lst, cdr) ->

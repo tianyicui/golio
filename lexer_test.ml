@@ -11,7 +11,7 @@ let _ =
     in
 
     test "'(a-bc-2 -1024 #f . \"hello\") ; comment"
-        [QUOTE; LPAREN; ATOM "a-bc-2"; NUMBER (-1024); BOOL false;
+        [QUOTE; LPAREN; SYMBOL "a-bc-2"; NUMBER (-1024); BOOL false;
             DOT; STRING "hello"; RPAREN; EOF];
 
     Printf.printf "All passed!\n"

@@ -16,11 +16,11 @@ rule tokens = parse
   | '"' (([^'"''\\'] | ('\\' _))* as str) '"' {
       Scanf.sscanf ("\"" ^ str ^ "\"") "%S%!" (fun s -> STRING s)
     }
-  | character (character | ['0'-'9'])* as atom {
-      match atom with
+  | character (character | ['0'-'9'])* as symbol {
+      match symbol with
       | "#t" -> BOOL true
       | "#f" -> BOOL false
-      | _    -> ATOM atom
+      | _    -> SYMBOL symbol
     }
   | eof { EOF }
   | (' ' | '\t' | '\r' | '\n') { tokens lexbuf }
