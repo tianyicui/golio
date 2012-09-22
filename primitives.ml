@@ -2,82 +2,89 @@ open Sexp
 
 module L = List
 
-let unpackNum sexp =
+let unpack_num sexp =
     match sexp with
     | Number num -> num
-    | _ -> invalid_arg "unpackNum: expected a number"
+    | _ -> invalid_arg "unpack_num: expected a number"
 ;;
-let unpackSym sexp =
+let unpack_sym sexp =
     match sexp with
     | Atom sym -> sym
-    | _ -> invalid_arg "unpackSym: expected a symbol"
+    | _ -> invalid_arg "unpack_sym: expected a symbol"
 ;;
-let unpackStr sexp =
+let unpack_str sexp =
     match sexp with
     | String str -> str
-    | _ -> invalid_arg "unpackStr: expected a string"
+    | _ -> invalid_arg "unpack_str: expected a string"
 ;;
-let unpackBool sexp =
+let unpack_bool sexp =
     match sexp with
     | Bool bl -> bl
-    | _ -> invalid_arg "unpackBool: expected a bool"
+    | _ -> invalid_arg "unpack_bool: expected a bool"
 ;;
 
-let binaryOp op params =
+let binary_op op params =
     match params with
     | [x; y] -> op x y
-    | _ -> invalid_arg "binaryOp: expected exactly 2 arguments"
+    | _ -> invalid_arg "binary_op: expected exactly 2 arguments"
 ;;
-let numBinop op params =
-    match (L.map unpackNum params) with
+let num_binop op params =
+    match (L.map unpack_num params) with
     | hd :: tl -> Number (L.fold_left op hd tl)
-    | _ -> invalid_arg "numBinop: expected at least 1 argument"
+    | _ -> invalid_arg "num_binop: expected at least 1 argument"
 ;;
-let boolAnyBinop op args =
-    Bool (binaryOp op args)
-let boolBinop unpack op args =
-    boolAnyBinop op (L.map unpack args)
+let bool_any_binop op args =
+    Bool (binary_op op args)
+let bool_binop unpack op args =
+    bool_any_binop op (L.map unpack args)
 ;;
-let numBoolBinop =
-    boolBinop unpackNum
+let num_bool_binop =
+    bool_binop unpack_num
 ;;
-let boolBoolBinop =
-    boolBinop unpackBool
+let bool_bool_binop =
+    bool_binop unpack_bool
 ;;
-let strBoolBinop =
-    boolBinop unpackStr
+let str_bool_binop =
+    bool_binop unpack_str
 ;;
-let unaryOp op params =
+let unary_op op params =
     match params with
     | [x] -> op x
-    | xs -> invalid_arg (Printf.sprintf "unaryOp: expected 1 argument, given %i"
+    | xs -> invalid_arg (Printf.sprintf "unary_op: expected 1 argument, given %i"
                                         (L.length xs))
 ;;
 
-let symbolp arg =
+let is_symbol arg =
     match arg with
     | Atom _ -> Bool true
     | _ -> Bool false
 ;;
-let numberp arg =
+let is_number arg =
     match arg with
     | Number _ -> Bool true
     | _ -> Bool false
 ;;
-let stringp arg =
+let is_string arg =
     match arg with
     | String _ -> Bool true
     | _ -> Bool false
 ;;
-let boolp arg =
+let is_bool arg =
     match arg with
     | Bool _ -> Bool true
     | _ -> Bool false
 ;;
-let listp arg =
+let is_list arg =
     match arg with
     | List _ | DottedList _ -> Bool true
     | _ -> Bool false
+;;
+
+let string_to_symbol arg =
+    String (unary_op unpack_sym arg)
+;;
+let symbol_to_string arg =
+    Atom (unary_op unpack_str arg)
 ;;
 
 let car param =

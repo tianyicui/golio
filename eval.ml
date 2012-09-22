@@ -9,44 +9,44 @@ let primitives =
         (fun m (k, v) -> M.add k v m)
         M.empty
         [
-            "+", numBinop (+);
-            "-", numBinop (-);
-            "*", numBinop ( * );
-            "/", numBinop (/);
-            "%", numBinop (mod);
+            "+", num_binop (+);
+            "-", num_binop (-);
+            "*", num_binop ( * );
+            "/", num_binop (/);
+            "%", num_binop (mod);
 
-            "=", numBoolBinop (==);
-            "<", numBoolBinop (<);
-            ">", numBoolBinop (>);
-            "/=", numBoolBinop (!=);
-            ">=", numBoolBinop (>=);
-            "<=", numBoolBinop (<=);
+            "=", num_bool_binop (==);
+            "<", num_bool_binop (<);
+            ">", num_bool_binop (>);
+            "/=", num_bool_binop (!=);
+            ">=", num_bool_binop (>=);
+            "<=", num_bool_binop (<=);
 
-            "&&", boolBoolBinop (&&);
-            "||", boolBoolBinop (||);
+            "&&", bool_bool_binop (&&);
+            "||", bool_bool_binop (||);
 
-            "string=?", strBoolBinop (=);
-            "string<?", strBoolBinop (<);
-            "string>?", strBoolBinop (>);
-            "string<=?", strBoolBinop (<=);
-            "string>=?", strBoolBinop (>=);
+            "string=?", str_bool_binop (=);
+            "string<?", str_bool_binop (<);
+            "string>?", str_bool_binop (>);
+            "string<=?", str_bool_binop (<=);
+            "string>=?", str_bool_binop (>=);
 
-            "symbol?", unaryOp symbolp;
-            "string?", unaryOp stringp;
-            "number?", unaryOp numberp;
-            "bool?", unaryOp boolp;
-            "list?", unaryOp listp;
+            "symbol?", unary_op is_symbol;
+            "string?", unary_op is_string;
+            "number?", unary_op is_number;
+            "bool?", unary_op is_bool;
+            "list?", unary_op is_list;
 
-            "symbol->string", (fun p -> String (unaryOp unpackSym p));
-            "string->symbol", (fun p -> Atom (unaryOp unpackStr p));
+            "symbol->string", string_to_symbol;
+            "string->symbol", symbol_to_string;
 
-            "car", unaryOp car;
-            "cdr", unaryOp cdr;
-            "cons", binaryOp cons;
+            "car", unary_op car;
+            "cdr", unary_op cdr;
+            "cons", binary_op cons;
 
-            "eqv?", boolAnyBinop eqv;
-            "eq?", boolAnyBinop  eq;
-            "equal?", boolAnyBinop equal;
+            "eqv?", bool_any_binop eqv;
+            "eq?", bool_any_binop  eq;
+            "equal?", bool_any_binop equal;
         ]
 ;;
 
@@ -67,7 +67,7 @@ and macros = lazy (
         (fun m (k, v) -> M.add k v m)
         M.empty
         [
-            "quote", Primitives.unaryOp (fun x -> x);
+            "quote", Primitives.unary_op (fun x -> x);
             "if", if_;
         ]
     )
