@@ -1,2 +1,0 @@
-#!/bin/bash
-OCAMLRUNPARAM=b exec ocamlbuild -no-links repl.d.byte --

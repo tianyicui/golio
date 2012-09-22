@@ -1,0 +1,2 @@
+#!/bin/bash
+OCAMLRUNPARAM=b exec ocamlbuild -no-links golio.d.byte --

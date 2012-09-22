@@ -1,14 +1,18 @@
-let _ =
-    let lb = Lexing.from_channel stdin in
+let repl in_c out_c is_interactive =
+    let lb = Lexing.from_channel in_c in
     let parse () = Parser.parse Lexer.tokens lb in
-    while true do
+    let rec go () =
         let open Printf in
-        printf ">>> ";
-        flush stdout;
+        begin if is_interactive then
+            fprintf out_c "> ";
+            flush out_c;
+        end;
         match parse () with
-        | None -> exit 0
+        | None -> ()
         | Some sexp ->
             let open Helper in
             assert (parse_str (print_sexp sexp) = [sexp]);
-            printf "%s\n" (print_sexp (Eval.eval sexp))
-    done
+            fprintf out_c "%s\n" (print_sexp (Eval.eval sexp));
+            go ()
+    in go ()
+;;
