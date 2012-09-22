@@ -39,4 +39,18 @@ let _ =
 
     test "(symbol->string 'a) (string->symbol \"a\")" "\"a\"\na";
 
+    test "(car '(a b c))" "a";
+    test "(car '(a))" "a";
+    test "(car '(a b . c))" "a";
+    test "(cdr '(a b c))" "(b c)";
+    test "(cdr '(a b))" "(b)";
+    test "(cdr '(a))" "()";
+    test "(cdr '(a . b))" "b";
+    test "(cdr '(a b . c))" "(b . c)";
+    test "(cons 'a '(b c))" "(a b c)";
+    test "(cons 'a '())" "(a)";
+    test "(cons 'a '(b . c))" "(a b . c)";
+    test "(cons 'a 'b)" "(a . b)";
+    test "(cons '() '())" "(())";
+
     Printf.printf "All passed!\n"

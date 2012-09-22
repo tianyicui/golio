@@ -24,50 +24,28 @@ let unpackBool sexp =
     | _ -> invalid_arg "unpackBool: expected a bool"
 ;;
 
+let binaryOp op params =
+    match params with
+    | [x; y] -> op x y
+    | _ -> invalid_arg "binaryOp: expected exactly 2 arguments"
+;;
 let numBinop op params =
     match (L.map unpackNum params) with
     | hd :: tl -> Number (L.fold_left op hd tl)
     | _ -> invalid_arg "numBinop: expected at least 1 argument"
 ;;
 let boolBinop unpack op args =
-    match args with
-    | [x; y] -> Bool (op (unpack x) (unpack y))
-    | _ -> invalid_arg "boolBinop: expected exactly 2 arguments"
+    Bool (binaryOp op (L.map unpack args))
 ;;
-let numBoolBinop = boolBinop unpackNum;;
-let boolBoolBinop = boolBinop unpackBool;;
-let strBoolBinop = boolBinop unpackStr;;
-
-let symbolp arg =
-    match arg with
-    | Atom _ -> Bool true
-    | _ -> Bool false
+let numBoolBinop =
+    boolBinop unpackNum
 ;;
-
-let numberp arg =
-    match arg with
-    | Number _ -> Bool true
-    | _ -> Bool false
+let boolBoolBinop =
+    boolBinop unpackBool
 ;;
-
-let stringp arg =
-    match arg with
-    | String _ -> Bool true
-    | _ -> Bool false
+let strBoolBinop =
+    boolBinop unpackStr
 ;;
-
-let boolp arg =
-    match arg with
-    | Bool _ -> Bool true
-    | _ -> Bool false
-;;
-
-let listp arg =
-    match arg with
-    | List _ | DottedList _ -> Bool true
-    | _ -> Bool false
-;;
-
 let unaryOp op params =
     match params with
     | [x] -> op x
@@ -75,6 +53,51 @@ let unaryOp op params =
                                         (L.length xs))
 ;;
 
+let symbolp arg =
+    match arg with
+    | Atom _ -> Bool true
+    | _ -> Bool false
+;;
+let numberp arg =
+    match arg with
+    | Number _ -> Bool true
+    | _ -> Bool false
+;;
+let stringp arg =
+    match arg with
+    | String _ -> Bool true
+    | _ -> Bool false
+;;
+let boolp arg =
+    match arg with
+    | Bool _ -> Bool true
+    | _ -> Bool false
+;;
+let listp arg =
+    match arg with
+    | List _ | DottedList _ -> Bool true
+    | _ -> Bool false
+;;
+
+let car param =
+    match param with
+    | List (x :: _) -> x
+    | DottedList ((x :: _), _) -> x
+    | _ -> invalid_arg "car: expected a pair"
+;;
+let cdr param =
+    match param with
+    | List (_ :: xs) -> List xs
+    | DottedList ([_], x) -> x
+    | DottedList ((_ :: xs), x) -> DottedList (xs, x)
+    | _ -> invalid_arg "cdr: expected a pair"
+;;
+let cons hd tl =
+    match hd, tl with
+    | _, List xs -> List (hd :: xs)
+    | _, DottedList (xs, x) -> DottedList ((hd :: xs), x)
+    | _ -> DottedList ([hd], tl)
+;;
 
 let primitives =
     L.fold_left
@@ -111,6 +134,10 @@ let primitives =
 
             "symbol->string", (fun p -> String (unaryOp unpackSym p));
             "string->symbol", (fun p -> Atom (unaryOp unpackStr p));
+
+            "car", unaryOp car;
+            "cdr", unaryOp cdr;
+            "cons", binaryOp cons;
         ]
 ;;
 
