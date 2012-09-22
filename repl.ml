@@ -10,9 +10,7 @@ let repl in_c out_c is_interactive =
         match parse () with
         | None -> ()
         | Some sexp ->
-            let open Helper in
-            assert (parse_str (print_sexp sexp) = [sexp]);
-            fprintf out_c "%s\n" (print_sexp (Eval.eval sexp));
+            fprintf out_c "%s\n" (Sexp.print_sexp (Eval.eval sexp));
             go ()
     in go ()
 ;;
