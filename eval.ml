@@ -23,6 +23,9 @@ let unpackBool sexp =
     | Bool bl -> bl
     | _ -> invalid_arg "unpackBool: expected a bool"
 ;;
+let id sexp =
+    sexp
+;;
 
 let binaryOp op params =
     match params with
@@ -99,6 +102,21 @@ let cons hd tl =
     | _ -> DottedList ([hd], tl)
 ;;
 
+let eqv a b =
+    match a, b with
+    | Bool x, Bool y -> x = y
+    | Atom x, Atom y -> x = y
+    | Number x, Number y -> x = y
+    | List [], List [] -> true
+    | _ -> a == b
+;;
+let eq a b =
+    eqv a b
+;;
+let equal a b =
+    a = b
+;;
+
 let primitives =
     L.fold_left
         (fun m (k, v) -> M.add k v m)
@@ -138,6 +156,10 @@ let primitives =
             "car", unaryOp car;
             "cdr", unaryOp cdr;
             "cons", binaryOp cons;
+
+            "eqv?", boolBinop id eqv;
+            "eq?", boolBinop id eq;
+            "equal?", boolBinop id equal;
         ]
 ;;
 
