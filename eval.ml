@@ -163,18 +163,35 @@ let primitives =
         ]
 ;;
 
-let apply func args =
-    let prim =
-        try M.find func primitives
-        with Not_found -> invalid_arg "apply: undefined function"
-    in prim args
+let apply func args map =
+    (M.find func map) args
 ;;
 
-let rec eval sexp =
+let rec if_ params =
+    match params with
+    | [pred; conseq; alt] -> (
+            match (eval pred) with
+            | Bool false -> eval alt
+            | _ -> eval conseq
+            )
+    | _ -> invalid_arg "if: expected 3 arguments"
+and macros = lazy (
+    L.fold_left
+        (fun m (k, v) -> M.add k v m)
+        M.empty
+        [
+            "quote", unaryOp id;
+            "if", if_;
+        ]
+    )
+and eval sexp =
     match sexp with
     | String _ | Number _ | Bool _ -> sexp
-    | List [Atom "quote"; p] -> p
-    | List (Atom func :: args) -> apply func (L.map eval args)
+    | List (Atom func :: args) ->
+            begin try apply func args (Lazy.force macros)
+            with Not_found ->
+                apply func (L.map eval args) primitives
+            end
     | List _ -> invalid_arg "eval: invalid application"
     | DottedList _ -> invalid_arg "eval: cannot eval dotted list"
     | Atom _ -> failwith "not implemented"

@@ -5,10 +5,6 @@ let _ =
 
     test "\"abc\"" "\"abc\"";
 
-    test "'abc" "abc";
-    test "'()" "()";
-    test "'(compose f g)" "(compose f g)";
-
     test "1" "1";
     test "(+ 1 1)" "2";
     test "(+ 1 2 -3)" "0";
@@ -69,5 +65,13 @@ let _ =
     test "(equal? '(a (b) c) '(a (b) c))" "#t";
     test "(equal? \"abc\" \"abc\")" "#t";
     test "(equal? 2 2)" "#t";
+
+    test "'abc" "abc";
+    test "(quote abc)" "abc";
+    test "'()" "()";
+    test "'(compose f g)" "(compose f g)";
+
+    test "(if 1 2 invalid)" "2";
+    test "(if #f invalid 'ok)" "ok";
 
     Printf.printf "All passed!\n"
