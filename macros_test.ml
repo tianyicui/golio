@@ -28,5 +28,13 @@ let _ =
     test "(lambda (x y) 1 2 3)" "(lambda (x y) 1 2 3)";
     test "(lambda (x . y) 1 2 3)" "(lambda (x . y) 1 2 3)";
     test "(lambda (x y . z) 1 2 3)" "(lambda (x y . z) 1 2 3)";
+    test "((lambda (x) x) 'a)" "a";
+    test "((lambda x x) 'a)" "(a)";
+    test "((lambda x x) 'a 'b)" "(a b)";
+    test "((lambda (x y) (+ x y)) 3 5)" "8";
+    test "((lambda x (apply + x)) 1 2 3)" "6";
+    test "((lambda (x . y) (+ x (car y))) 1 2 5)" "3";
+    test "((lambda (x y . z) (+ x y (car z))) 1 2 5 11)" "8";
+    test "(define x 10) ((lambda (x) x) 5) x" "5\n10";
 
     Printf.printf "All passed!\n"

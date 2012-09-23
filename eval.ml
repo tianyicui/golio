@@ -3,7 +3,7 @@ open Types
 module L = List
 module M = Map.Make(String)
 
-let primitives =
+let rec lazy_prim_functions = lazy (
     let open Primitives in
     [
         "+", num_binop (+);
@@ -45,11 +45,12 @@ let primitives =
         "eqv?", bool_any_binop eqv;
         "eq?", bool_any_binop eq;
         "equal?", bool_any_binop equal;
+
+        "apply", binary_op apply;
     ]
-;;
+)
 
-
-let rec quote env param =
+and quote env param =
     env, (Primitives.unary_op (fun x -> x) param)
 
 and begin_ env params =
@@ -109,7 +110,7 @@ and lambda env params =
         }
     | _ -> invalid_arg "lambda: invalid arguments list"
 
-and lazy_macros = lazy
+and lazy_prim_macros = lazy
     [
         "quote", quote;
         "begin", begin_;
@@ -121,19 +122,19 @@ and lazy_macros = lazy
 
 and lazy_primitive_env = lazy (
     let env_from_assoc_list f init lst=
-        L.fold_left (fun m (k, v) -> Env.def_var k (f k v) m) init lst
+        Env.bind_vars init (L.map (fun (k, v) -> (k, f k v)) lst)
     in
     let env_with_func =
         env_from_assoc_list
             (fun k v -> PrimitiveFunc (k, v))
             Env.empty
-            primitives
+            (Lazy.force lazy_prim_functions)
     in
     let env =
         env_from_assoc_list
             (fun k v -> PrimitiveMacro (k, v))
             env_with_func
-            (Lazy.force lazy_macros)
+            (Lazy.force lazy_prim_macros)
     in env
 )
 
@@ -147,6 +148,36 @@ and eval_list env sexp_list =
         sexp_list
     in env, (L.rev rst_lst)
 
+and apply id arg_list =
+    let args = (Primitives.unpack_list arg_list) in
+    match id with
+    | PrimitiveFunc (_, func) ->
+        func args
+    | Func func ->
+        let params_len = L.length func.params in
+        let args_len = L.length args in
+        let env =
+            begin match func.vararg with
+            | None ->
+                if params_len == args_len then
+                    Env.bind_vars func.closure (List.combine func.params args)
+                else invalid_arg ("apply: invalid number of args, expected " ^
+                    string_of_int params_len ^ ", given " ^ string_of_int args_len)
+            | Some vararg ->
+                if params_len <= args_len then
+                    let rec go params args =
+                        begin match params with
+                        | [] -> Env.def_var vararg (List args) func.closure
+                        | x :: xs -> Env.def_var x (L.hd args) (go xs (L.tl args))
+                        end
+                    in go func.params args
+                else invalid_arg ("apply: invalid number of args, expected " ^
+                    string_of_int params_len ^ "+, given " ^ string_of_int args_len)
+            end
+        in
+        snd (begin_ env func.body)
+    | _ -> invalid_arg "apply: not applicable"
+
 and eval env sexp =
     match sexp with
     | String _ | Number _ | Bool _
@@ -156,10 +187,10 @@ and eval env sexp =
     | List (hd :: tl) ->
             let env', id = eval env hd in
             begin match id with
-            | PrimitiveFunc (_, func) ->
-                let env'', params = eval_list env' tl in
-                env'', (func params)
-            | Func func -> failwith "not implemented"
+            | PrimitiveFunc _
+            | Func _ ->
+                let env'', args = eval_list env' tl in
+                env'', (apply id (List args))
             | PrimitiveMacro (_, macro) ->
                 macro env' tl
             | _ -> invalid_arg "eval: invalid application"

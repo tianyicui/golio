@@ -22,6 +22,11 @@ let unpack_bool sexp =
     | Bool bl -> bl
     | _ -> invalid_arg "unpack_bool: expected a bool"
 ;;
+let unpack_list sexp =
+    match sexp with
+    | List lst -> lst
+    | _ -> invalid_arg "unpack_list: expected a list"
+;;
 
 let binary_op op params =
     match params with

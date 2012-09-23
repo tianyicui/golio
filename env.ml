@@ -1,3 +1,4 @@
+module L = List
 module M = Map.Make(String)
 
 let empty =
@@ -21,4 +22,8 @@ let set_var var value env =
     if is_bound var env
     then (M.find var env := value; env)
     else failwith "set_var: cannot set undefined variable"
+;;
+
+let bind_vars init lst =
+    L.fold_left (fun m (k, v) -> def_var k v m) init lst
 ;;

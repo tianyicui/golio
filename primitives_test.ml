@@ -74,4 +74,11 @@ let _ =
     test "'()" "()";
     test "'(compose f g)" "(compose f g)";
 
+    test "(apply * '(2 3 4))" "24";
+    test "(define compose
+            (lambda (f g)
+              (lambda args
+                (f (apply g args)))))
+          ((compose + *) 12 75)" "900";
+
     Printf.printf "All passed!\n"
