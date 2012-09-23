@@ -40,6 +40,7 @@ let primitives =
         "car", unary_op car;
         "cdr", unary_op cdr;
         "cons", binary_op cons;
+        "list", list_;
 
         "eqv?", bool_any_binop eqv;
         "eq?", bool_any_binop eq;

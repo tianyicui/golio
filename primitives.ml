@@ -106,6 +106,9 @@ let cons hd tl =
     | _, DottedList (xs, x) -> DottedList ((hd :: xs), x)
     | _ -> DottedList ([hd], tl)
 ;;
+let list_ param =
+    List param
+;;
 
 let eqv a b =
     match a, b with
