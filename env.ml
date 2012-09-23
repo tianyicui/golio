@@ -11,7 +11,7 @@ let is_bound =
 
 let get_var var env =
     try !(M.find var env) with
-    | Not_found -> failwith "get_var: cannot get undefined variable"
+    | Not_found -> failwith ("get_var: cannot get undefined variable " ^ var)
 ;;
 
 let def_var var value env =
@@ -20,8 +20,8 @@ let def_var var value env =
 
 let set_var var value env =
     if is_bound var env
-    then (M.find var env := value; env)
-    else failwith "set_var: cannot set undefined variable"
+    then M.find var env := value
+    else failwith ("set_var: cannot set undefined variable " ^ var)
 ;;
 
 let bind_vars init lst =

@@ -14,4 +14,6 @@ let _ =
         [QUOTE; LPAREN; SYMBOL "a-bc-2"; NUMBER (-1024); BOOL false;
             DOT; STRING "hello"; RPAREN; EOF];
 
+    test "0 -0" [NUMBER 0; NUMBER 0; EOF];
+
     Printf.printf "All passed!\n"

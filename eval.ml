@@ -70,39 +70,57 @@ and if_ env params =
     | _ -> invalid_arg "if: expected 3 arguments"
 
 and define env params =
-    match params with
-    | [Symbol var; expr] ->
-        let env', value = eval env expr in
-        Env.def_var var value env, Undefined
-    | [_; _] -> invalid_arg "define: first argument should be a symbol"
-    | _ -> invalid_arg "define: expected 2 arguments"
+    let named_lambda var params =
+        let func = build_func env params in
+        let func' = {
+            params = func.params;
+            vararg = func.vararg;
+            body = func.body;
+            closure = Env.def_var var Undefined func.closure
+        } in
+        let rst = Func func' in
+        (Env.set_var var rst func'.closure; rst)
+    in
+    let var, (env', value) =
+        match params with
+        | [Symbol var; expr] ->
+            var, eval env expr
+        | List (Symbol var :: formals) :: body ->
+            var, (env, named_lambda var (List formals :: body))
+        | DottedList ([Symbol var], formal) :: body ->
+            var, (env, named_lambda var (formal :: body))
+        | _ -> invalid_arg "define: invalid arguments"
+    in Env.def_var var value env', Undefined
 
 and set env params =
     match params with
     | [Symbol var; expr] ->
         let env', value = eval env expr in
-        Env.set_var var value env, Undefined
+        (Env.set_var var value env; env, Undefined)
     | [_; _] -> invalid_arg "set: first argument should be a symbol"
     | _ -> invalid_arg "set: expected 2 arguments"
 
 and lambda env params =
+    env, Func (build_func env params)
+
+and build_func env params =
     match params with
     | Symbol vararg :: body ->
-        env, Func {
+        {
             params = [];
             vararg = Some vararg;
             body = body;
             closure = env;
         }
     | List params :: body ->
-        env, Func {
+        {
             params = L.map Primitives.unpack_sym params;
             vararg = None;
             body = body;
             closure = env;
         }
     | DottedList (params, Symbol vararg) :: body ->
-        env, Func {
+        {
             params = L.map Primitives.unpack_sym params;
             vararg = Some vararg;
             body = body;
