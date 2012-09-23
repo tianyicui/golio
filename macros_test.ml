@@ -17,7 +17,9 @@ let _ =
     test "(define x 3) x (+ x x)" "3\n6";
     test "(define x 1) x (define x (+ x 1)) x" "1\n2";
     test "(define str \"A string\") (string<? str \"The string\")" "#t";
-    (* TODO: internal define *)
+    test "(define y 2) ((lambda (x) (define y 1) (+ x y)) 3) y" "4\n2";
+    test_exn "((lambda (x) (define y 1) (+ x y)) 3) y"
+        (Failure "get_var: cannot get undefined variable");
     test_exn "(+ y 2)" (Failure "get_var: cannot get undefined variable");
 
     test "(define x -2) x (set! x (* x x)) x" "-2\n4";
