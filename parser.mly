@@ -1,5 +1,5 @@
 %{
-open Sexp
+open Types
 %}
 
 %token LPAREN RPAREN QUOTE DOT EOF
@@ -8,7 +8,7 @@ open Sexp
 %token <string> STRING
 %token <bool> BOOL
 %start parse
-%type< Sexp.sexp option> parse
+%type< Types.sexp option> parse
 %%
 
 parse:

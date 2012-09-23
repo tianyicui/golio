@@ -12,9 +12,9 @@ let repl in_c out_c is_interactive =
         | Some sexp ->
             let env', rst = Eval.eval env sexp in
             begin match rst with
-            | Sexp.Undefined -> ()
+            | Types.Undefined -> ()
             | _ -> fprintf out_c "%s\n" (Sexp.print_sexp rst)
             end;
             go env';
-    in go Sexp.empty_env
+    in go Env.empty_env
 ;;

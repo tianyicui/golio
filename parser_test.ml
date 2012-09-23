@@ -1,10 +1,10 @@
-open Sexp
+open Types
 
 let _ =
     let test str rst =
         let open Helper in
         assert (parse_str str = rst);
-        assert (parse_str (String.concat "\n" (List.map print_sexp rst)) = rst)
+        assert (parse_str (String.concat "\n" (List.map Sexp.print_sexp rst)) = rst)
     in
 
     test "1" [Number 1];

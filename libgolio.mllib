@@ -1,7 +1,9 @@
+Types
 Sexp
 Lexer
 Parser
 Helper
 Primitives
+Env
 Eval
 Repl

@@ -1,4 +1,4 @@
-open Sexp
+open Types
 
 module L = List
 module M = Map.Make(String)
@@ -81,7 +81,7 @@ and define env params =
     match params with
     | [Symbol var; expr] ->
         let env', value = eval env expr in
-        def_var var value env, Undefined
+        Env.def_var var value env, Undefined
     | [_; _] -> invalid_arg "define: first argument should be a symbol"
     | _ -> invalid_arg "define: expected 2 arguments"
 
@@ -89,7 +89,7 @@ and set env params =
     match params with
     | [Symbol var; expr] ->
         let env', value = eval env expr in
-        set_var var value env, Undefined
+        Env.set_var var value env, Undefined
     | [_; _] -> invalid_arg "set: first argument should be a symbol"
     | _ -> invalid_arg "set: expected 2 arguments"
 
@@ -114,7 +114,7 @@ and eval_list env sexp_list =
 and eval env sexp =
     match sexp with
     | String _ | Number _ | Bool _ -> (env, sexp)
-    | Symbol id -> (env, get_var id env)
+    | Symbol id -> (env, Env.get_var id env)
     | List (Symbol id :: args) ->
             let macros = Lazy.force lazy_macros in
             begin try expand env id args macros
