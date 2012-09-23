@@ -23,4 +23,10 @@ let _ =
     test "(define x -2) x (set! x (* x x)) x" "-2\n4";
     test_exn "(set! x 1)" (Failure "set_var: cannot set undefined variable");
 
+    test "(lambda x 1 2 3)" "(lambda x 1 2 3)";
+    test "(lambda (x) 1 2 3)" "(lambda (x) 1 2 3)";
+    test "(lambda (x y) 1 2 3)" "(lambda (x y) 1 2 3)";
+    test "(lambda (x . y) 1 2 3)" "(lambda (x . y) 1 2 3)";
+    test "(lambda (x y . z) 1 2 3)" "(lambda (x y . z) 1 2 3)";
+
     Printf.printf "All passed!\n"

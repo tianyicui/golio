@@ -20,11 +20,20 @@ let rec print_sexp sexp =
     | PrimitiveFunc (name, _) ->
             sprintf "#<procedure:%s>" name
     | Func func ->
-            "(lambda (" ^ S.concat " " func.params ^
-            (match func.vararg with
-            | None -> ""
-            | Some arg -> " . " ^ arg) ^
-            ") ...)"
+            "(lambda " ^
+            begin match func.params, func.vararg with
+            | [], None -> "()"
+            | [], Some arg -> arg
+            | params, vararg ->
+                    "(" ^ S.concat " " params ^
+                    (match vararg with
+                    | None -> ""
+                    | Some arg -> " . " ^ arg
+                    ) ^ ")"
+            end ^
+            " " ^
+            S.concat " " (L.map print_sexp func.body) ^
+            ")"
     | PrimitiveMacro (name, _) ->
             sprintf "#<macro:%s>" name
     | Undefined -> failwith "print_sexp: should not print Undefined"

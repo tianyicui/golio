@@ -83,6 +83,31 @@ and set env params =
     | [_; _] -> invalid_arg "set: first argument should be a symbol"
     | _ -> invalid_arg "set: expected 2 arguments"
 
+and lambda env params =
+    match params with
+    | Symbol vararg :: body ->
+        env, Func {
+            params = [];
+            vararg = Some vararg;
+            body = body;
+            closure = env;
+        }
+    | List params :: body ->
+        env, Func {
+            params = L.map Primitives.unpack_sym params;
+            vararg = None;
+            body = body;
+            closure = env;
+        }
+    | DottedList (params, Symbol vararg) :: body ->
+        env, Func {
+            params = L.map Primitives.unpack_sym params;
+            vararg = Some vararg;
+            body = body;
+            closure = env;
+        }
+    | _ -> invalid_arg "lambda: invalid arguments list"
+
 and lazy_macros = lazy
     [
         "quote", quote;
@@ -90,6 +115,7 @@ and lazy_macros = lazy
         "if", if_;
         "define", define;
         "set!", set;
+        "lambda", lambda;
     ]
 
 and lazy_primitive_env = lazy (
