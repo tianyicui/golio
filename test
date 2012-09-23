@@ -5,10 +5,16 @@ set -e
 bold=`tput bold`
 normal=`tput sgr0`
 
-
-for file in *_test.ml
+for file in $(ls -t *_test.ml)
 do
 	name=$(echo $file | sed -e 's/\.ml$//')
-	echo "$bold>>> $name$normal"
-	OCAMLRUNPARAM=b ocamlbuild -no-links $name.d.byte --
+	target=$name.d.byte
+	if ! ocamlbuild -no-links -nothing-should-be-rebuilt $target >/dev/null
+	then
+		echo "$bold>>> $name$normal"
+		if ! OCAMLRUNPARAM=b ocamlbuild -no-links $target --
+		then
+			rm _build/$target
+		fi
+	fi
 done

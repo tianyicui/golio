@@ -9,7 +9,8 @@ let is_bound =
 ;;
 
 let get_var var env =
-    !(M.find var env)
+    try !(M.find var env) with
+    | Not_found -> failwith "get_var: cannot get undefined variable"
 ;;
 
 let def_var var value env =
