@@ -1,6 +1,6 @@
 module M = Map.Make(String)
 
-let empty_env =
+let empty =
     M.empty
 ;;
 

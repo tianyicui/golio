@@ -16,5 +16,5 @@ let repl in_c out_c is_interactive =
             | _ -> fprintf out_c "%s\n" (Sexp.print_sexp rst)
             end;
             go env';
-    in go Env.empty_env
+    in go (Lazy.force Eval.lazy_primitive_env)
 ;;

@@ -15,6 +15,7 @@ do
 		if ! OCAMLRUNPARAM=b ocamlbuild -no-links $target --
 		then
 			rm _build/$target
+			exit 1
 		fi
 	fi
 done
