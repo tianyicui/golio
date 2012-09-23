@@ -73,9 +73,7 @@ and define env params =
     let named_lambda var params =
         let func = build_func env params in
         let func' = {
-            params = func.params;
-            vararg = func.vararg;
-            body = func.body;
+            func with
             closure = Env.def_var var Undefined func.closure
         } in
         let rst = Func func' in
@@ -99,6 +97,22 @@ and set env params =
         (Env.set_var var value env; env, Undefined)
     | [_; _] -> invalid_arg "set: first argument should be a symbol"
     | _ -> invalid_arg "set: expected 2 arguments"
+
+and let_ env params =
+    match params with
+    | [] -> invalid_arg "let: cannot have an empty body"
+    | (List bindings_sexp) :: body ->
+        let vars, inits = L.split (L.map
+            (fun sexp ->
+                match sexp with
+                | List [Symbol var; init] -> var, init
+                | _ -> invalid_arg "let: invalid binding list")
+            bindings_sexp)
+        in
+        let env', values = eval_list env inits in
+        let func = {params = vars; vararg = None; body = body; closure = env'} in
+        env', apply (Func func) (List values)
+    | _ -> invalid_arg "let: invalid binding list"
 
 and lambda env params =
     env, Func (build_func env params)
@@ -135,6 +149,7 @@ and lazy_prim_macros = lazy
         "if", if_;
         "define", define;
         "set!", set;
+        "let", let_;
         "lambda", lambda;
     ]
 
