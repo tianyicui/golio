@@ -58,7 +58,7 @@ let _ =
     test "(eqv? '() '())" "#t";
     test "(eqv? (cons 1 2) (cons 1 2))" "#f";
     test "(eqv? #f 'nil)" "#f";
-    (* TODO test "(let ((p (lambda (x) x))) (eqv? p p))" "#t"; *)
+    test "(let ((p (lambda (x) x))) (eqv? p p))" "#t";
     test "(eq? 'a 'a)" "#t";
     test "(eq? (list 'a) (list 'a))" "#f";
     test "(eq? '() '())" "#t";
