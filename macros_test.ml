@@ -13,6 +13,8 @@ let _ =
 
     test "(if 1 2 invalid)" "2";
     test "(if #f invalid 'ok)" "ok";
+    test "(if #t 1)" "1";
+    test "(if #f 1)" "()";
 
     test "(define x 3) x (+ x x)" "3\n6";
     test "(define x 1) x (define x (+ x 1)) x" "1\n2";

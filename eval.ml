@@ -61,13 +61,15 @@ and begin_ env params =
         env', L.hd (L.rev lst)
 
 and if_ env params =
-    match params with
-    | [pred; conseq; alt] -> (
-            match (eval env pred) with
-            | env', Bool false -> eval env' alt
-            | env', _ -> eval env' conseq
-            )
-    | _ -> invalid_arg "if: expected 3 arguments"
+    let pred, conseq, alt =
+        match params with
+        | [x; y] -> x, y, List [Symbol "quote"; List []]
+        | [x; y; z] -> x, y, z
+        | _ -> invalid_arg "if: expected 2 or more arguments"
+    in
+        match (eval env pred) with
+        | env', Bool false -> eval env' alt
+        | env', _ -> eval env' conseq
 
 and define env params =
     let named_lambda var params =
