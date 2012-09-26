@@ -1,8 +1,16 @@
 open Type
 
 let _ =
+  let parse_str str =
+    let lb = Lexing.from_string str in
+    let rec go () =
+      match Parser.parse Lexer.tokens lb with
+        | None -> []
+        | Some x -> x :: go ()
+    in go ()
+  in
+
   let test str rst =
-    let open Helper in
     assert (parse_str str = rst);
     assert (parse_str (String.concat "\n" (List.map Sexp.print_sexp rst)) = rst)
   in

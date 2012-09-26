@@ -1,12 +1,3 @@
-let parse_str str =
-  let lb = Lexing.from_string str in
-  let rec go () =
-    match Parser.parse Lexer.tokens lb with
-      | None -> []
-      | Some x -> x :: go ()
-  in go ()
-;;
-
 let repl_str str =
   let temp_in = Filename.temp_file "golio-" "" in
   let str_c = open_out temp_in in

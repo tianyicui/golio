@@ -1,19 +1,30 @@
 module M = Map.Make(String)
 
-type sexp =
+type value =
+  | Sexp of sexp
+  | Func of func
+  | Macro of macro
+  | Undefined
+
+and sexp =
   | Number of int
   | Symbol of string
   | String of string
   | Bool of bool
-  | List of sexp list
-  | DottedList of sexp list * sexp
-  | PrimitiveFunc of string * (sexp list -> sexp)
-  | Func of func
-  | PrimitiveMacro of string * (env -> sexp list -> env * sexp)
-  | Undefined
+  | List of value list
+  | DottedList of value list * value
+
+and func =
+  | PrimFunc of string * (value list -> value)
+  | UserFunc of func_record
+
+and macro =
+  | PrimMacro of string * (env -> value list -> env * value)
+
 and env =
-  sexp ref M.t
-and func = {
+    value ref M.t
+
+and func_record = {
   params : string list;
   vararg : string option;
   body : sexp list;

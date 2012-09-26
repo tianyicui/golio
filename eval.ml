@@ -3,52 +3,6 @@ open Type
 module L = List
 module M = Map.Make(String)
 
-let rec lazy_prim_functions = lazy (
-  let open Primitives in
-    [
-      "+", num_binop (+);
-      "-", num_binop (-);
-      "*", num_binop ( * );
-      "/", num_binop (/);
-      "%", num_binop (mod);
-
-      "=", num_bool_binop (==);
-      "<", num_bool_binop (<);
-      ">", num_bool_binop (>);
-      "/=", num_bool_binop (!=);
-      ">=", num_bool_binop (>=);
-      "<=", num_bool_binop (<=);
-
-      "&&", bool_bool_binop (&&);
-      "||", bool_bool_binop (||);
-
-      "string=?", str_bool_binop (=);
-      "string<?", str_bool_binop (<);
-      "string>?", str_bool_binop (>);
-      "string<=?", str_bool_binop (<=);
-      "string>=?", str_bool_binop (>=);
-
-      "symbol?", unary_op is_symbol;
-      "string?", unary_op is_string;
-      "number?", unary_op is_number;
-      "bool?", unary_op is_bool;
-      "list?", unary_op is_list;
-
-      "symbol->string", string_to_symbol;
-      "string->symbol", symbol_to_string;
-
-      "car", unary_op car;
-      "cdr", unary_op cdr;
-      "cons", binary_op cons;
-      "list", list_;
-
-      "eqv?", bool_any_binop eqv;
-      "eq?", bool_any_binop eq;
-      "equal?", bool_any_binop equal;
-
-      "apply", binary_op apply;
-    ]
-)
 
 and quote env param =
   env, (Primitives.unary_op (fun x -> x) param)
@@ -222,37 +176,6 @@ and eval_list env sexp_list =
                        (env, [])
                        sexp_list
   in env, (L.rev rst_lst)
-
-and apply id arg_list =
-  let args = (Primitives.unpack_list arg_list) in
-    match id with
-      | PrimitiveFunc (_, func) ->
-          func args
-      | Func func ->
-          let params_len = L.length func.params in
-          let args_len = L.length args in
-          let env =
-            (match func.vararg with
-               | None ->
-                   if params_len == args_len then
-                     Env.bind_vars func.closure (List.combine func.params args)
-                   else invalid_arg ("apply: invalid number of args, expected " ^
-                                     string_of_int params_len ^ ", given " ^
-                                     string_of_int args_len)
-               | Some vararg ->
-                   if params_len <= args_len then
-                     let rec go params args =
-                       begin match params with
-                         | [] -> Env.def_var vararg (List args) func.closure
-                         | x :: xs -> Env.def_var x (L.hd args) (go xs (L.tl args))
-                       end
-                     in go func.params args
-                     else invalid_arg ("apply: invalid number of args, expected " ^
-                                       string_of_int params_len ^ "+, given " ^
-                                       string_of_int args_len)
-            )
-          in snd (begin_ env func.body)
-      | _ -> invalid_arg "apply: not applicable"
 
 and eval env sexp =
   match sexp with
