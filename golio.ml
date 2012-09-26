@@ -1,2 +1,2 @@
 let _ =
-    Repl.repl stdin stdout true
+  Repl.repl stdin stdout true
