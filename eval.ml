@@ -100,26 +100,51 @@ and set env params =
     | [_; _] -> invalid_arg "set: first argument should be a symbol"
     | _ -> invalid_arg "set: expected 2 arguments"
 
-and let_ env params =
+and let_to_apply is_rec env params =
+  let name = if is_rec then "letrec" else "let" in
   match params with
-    | [] -> invalid_arg "let: cannot have empty bindings"
+    | [] -> invalid_arg (name ^ ": should have a binding list")
     | (List bindings_sexp) :: body ->
-        let bindings =L.map
-                        (fun sexp ->
-                           match sexp with
-                             | List [Symbol var; init] -> var, init
-                             | _ -> invalid_arg "let: invalid binding list")
-                        bindings_sexp
+        let bindings =
+          L.map
+            (fun sexp ->
+               match sexp with
+                 | List [Symbol var; init] -> var, init
+                 | _ -> invalid_arg (name ^ ": invalid binding list"))
+            bindings_sexp
         in
         let vars, inits = L.split bindings in
-        let env', values = eval_list env inits in
+        let env', values =
+          eval_list
+            (if is_rec
+             then L.fold_left
+                    (fun e v ->
+                       if (Env.is_bound v e)
+                       then Env.def_var v (Env.get_var v e) e
+                       else Env.def_var v Undefined e
+                    )
+                    env
+                    vars
+             else env)
+            inits
+        in
+        begin
+        if is_rec then
+          L.iter2 (fun var value -> Env.set_var var value env') vars values;
         let func = {params = vars; vararg = None; body = body; closure = env'} in
-          env', apply (Func func) (List values)
-    | _ -> invalid_arg "let: invalid binding list"
+            env, apply (Func func) (List values)
+        end
+    | _ -> invalid_arg (name ^ ": invalid binding list")
+
+and let_ env params =
+  let_to_apply false env params
+
+and letrec env params =
+  let_to_apply true env params
 
 and let_star env params =
   match params with
-    | [] -> invalid_arg "let*: cannot have empty bindings"
+    | [] -> invalid_arg "let*: should have a binding list"
     | (List []) :: body ->
         begin_ env body
     | (List (first_binding :: remaining_bindings) :: body) ->
@@ -165,6 +190,7 @@ and lazy_prim_macros = lazy (
     "define", define;
     "set!", set;
     "let", let_;
+    "letrec", letrec;
     "let*", let_star;
     "lambda", lambda;
   ]

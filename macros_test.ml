@@ -40,6 +40,25 @@ let _ =
   test "(let ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))" "35";
   test "(begin (define a 5) (let ((a 10) (b a)) (- a b)))" "5";
 
+  test "(letrec ((x 2) (y 3)) (* x y))" "6";
+  test "(letrec ((x 2) (y 3)) (letrec ((x 7) (z (+ x y))) (* z x)))" "35";
+  test "(define x 5) (letrec ((x 3) (y 5)) (+ x y)) x" "8\n5";
+  test "(letrec ((even?
+                  (lambda (n)
+                    (if (eq? 0 n)
+                        #t
+                        (odd? (- n 1)))))
+                 (odd?
+                  (lambda (n)
+                    (if (eq? 0 n)
+                        #f
+                        (even? (- n 1))))))
+           (even? 88))" "#t";
+  test "(begin (define a 5) (letrec ((a 10) (b a)) (- a b)))" "5";
+
+  test "(let* ((x 2) (y 3)) (* x y))" "6";
+  test "(let* ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))" "35";
+  test "(let* ((x 2) (y 3)) (let* ((x 7) (z (+ x y))) (* z x)))" "70";
   test "(begin (define a 5) (let* ((a 10) (b a)) (- a b)))" "0";
 
   test "(lambda x 1 2 3)" "(lambda x 1 2 3)";
