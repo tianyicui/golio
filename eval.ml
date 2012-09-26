@@ -102,7 +102,7 @@ and set env params =
 
 and let_ env params =
   match params with
-    | [] -> invalid_arg "let: cannot have an empty body"
+    | [] -> invalid_arg "let: cannot have empty bindings"
     | (List bindings_sexp) :: body ->
         let bindings =L.map
                         (fun sexp ->
@@ -116,6 +116,18 @@ and let_ env params =
         let func = {params = vars; vararg = None; body = body; closure = env'} in
           env', apply (Func func) (List values)
     | _ -> invalid_arg "let: invalid binding list"
+
+and let_star env params =
+  match params with
+    | [] -> invalid_arg "let*: cannot have empty bindings"
+    | (List []) :: body ->
+        begin_ env body
+    | (List (first_binding :: remaining_bindings) :: body) ->
+        let_ env [List [first_binding];
+                  List (Symbol "let*" ::
+                        List remaining_bindings ::
+                        body)]
+    | _ -> invalid_arg "let*: invalid binding list"
 
 and lambda env params =
   env, Func (build_func env params)
@@ -153,6 +165,7 @@ and lazy_prim_macros = lazy (
     "define", define;
     "set!", set;
     "let", let_;
+    "let*", let_star;
     "lambda", lambda;
   ]
 )

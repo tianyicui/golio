@@ -40,6 +40,8 @@ let _ =
   test "(let ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))" "35";
   test "(begin (define a 5) (let ((a 10) (b a)) (- a b)))" "5";
 
+  test "(begin (define a 5) (let* ((a 10) (b a)) (- a b)))" "0";
+
   test "(lambda x 1 2 3)" "(lambda x 1 2 3)";
   test "(lambda (x) 1 2 3)" "(lambda (x) 1 2 3)";
   test "(lambda (x y) 1 2 3)" "(lambda (x y) 1 2 3)";
