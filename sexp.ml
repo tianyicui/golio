@@ -1,4 +1,4 @@
-open Types
+open Type
 
 module S = String
 module L = List

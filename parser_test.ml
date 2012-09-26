@@ -1,4 +1,4 @@
-open Types
+open Type
 
 let _ =
   let test str rst =

@@ -1,4 +1,4 @@
-open Types
+open Type
 
 module L = List
 module M = Map.Make(String)

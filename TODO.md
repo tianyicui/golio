@@ -7,4 +7,5 @@
 
 * `eval`
 * `delay` and `force`
+* quasiquote
 * `call-with-current-continuation` and `dynaic-wind`?

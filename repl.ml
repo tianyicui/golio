@@ -12,7 +12,7 @@ let repl in_c out_c is_interactive =
         | Some sexp ->
             let env', rst = Eval.eval env sexp in
               begin match rst with
-                | Types.Undefined -> ()
+                | Type.Undefined -> ()
                 | _ -> fprintf out_c "%s\n" (Sexp.print_sexp rst)
               end;
               go env';
