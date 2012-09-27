@@ -4,7 +4,7 @@ let _ =
   in
 
   let test_exn str expected =
-    try ignore (Helper.repl_str str)
+    try (ignore (Helper.repl_str str); assert false)
     with catched -> assert (catched = expected)
   in
 
@@ -31,7 +31,7 @@ let _ =
   test "(define add3 (lambda (x) (+ x 3))) (add3 3)" "6";
   test "(define first car) (first '(1 2))" "1";
   test "(define (add . l) (apply + l)) (add -2 -1 0 1 2)" "0";
-  test_exn "(define (x y . z) body)" (Invalid_argument "define: invalid arguments");
+  test "(define (x y . z) (cons y z)) (x 1 2 3)" "(1 2 3)";
 
   test "(define x -2) x (set! x (* x x)) x" "-2\n4";
   test_exn "(set! x 1)" (Failure "set_var: cannot set undefined variable x");

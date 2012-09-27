@@ -70,6 +70,8 @@ let define eval env params =
           var, (env, named_lambda var (list_ formals :: body))
       | Sexp (DottedList ([Sexp (Symbol var)], formal)) :: body ->
           var, (env, named_lambda var (formal :: body))
+      | Sexp (DottedList ((Sexp (Symbol var) :: formals), formal)) :: body ->
+          var, (env, named_lambda var ((dotted_list formals formal) :: body))
       | _ -> invalid_arg "define: invalid arguments"
   in Env.def_var var value env', Undefined
 ;;
