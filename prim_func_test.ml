@@ -34,6 +34,7 @@ let _ =
   test "(list? '(a . b)) (list? 2)" "#f\n#f";
   test "(pair? '()) (pair? '(a)) (pair? '(a b)) (pair? '(a b . c))" "#f\n#t\n#t\n#t";
   test "(pair? '(a . b)) (pair? 2)" "#t\n#f";
+  test "(procedure? car) (procedure? (lambda x x)) (procedure? let)" "#t\n#t\n#f";
 
   test "(symbol->string 'a) (string->symbol \"a\")" "\"a\"\na";
 
@@ -95,9 +96,18 @@ let _ =
         Printf.sprintf
           "(define in (open-input-file  %S))
            (define out (open-output-file %S))
+           (port? in)
+           (input-port? in)
+           (output-port? in)
+           (port? out)
+           (input-port? out)
+           (output-port? out)
+
            (define x (read in))
            x
            (read in)
+           (eof-object? (read in))
+           (eof-object? '())
            (define y (apply + x))
            (write y out)
            (close-input-port in)
@@ -105,7 +115,7 @@ let _ =
           temp_in
           temp_out
       in
-        test program "(1 2 3)\n#<eof>";
+        test program "#t\n#t\n#f\n#t\n#f\n#t\n(1 2 3)\n#<eof>\n#t\n#f";
         let out_file_c = open_in temp_out in
           assert (input_line out_file_c = "6");
           close_in out_file_c
@@ -116,6 +126,6 @@ let _ =
           (lambda (f g)
             (lambda args
               (f (apply g args)))))
-        ((compose + * ) 12 75)" "900";
+        ((compose + *) 12 75)" "900";
 
   Printf.printf "All passed!\n"

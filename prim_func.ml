@@ -40,33 +40,59 @@ let str_unary_op op params =
 ;;
 
 let is_symbol arg =
-  match unpack_sexp arg with
-    | Symbol _ -> bool_ true
+  match arg with
+    | Sexp (Symbol _) -> bool_ true
     | _ -> bool_ false
 ;;
 let is_number arg =
-  match unpack_sexp arg with
-    | Number _ -> bool_ true
+  match arg with
+    | Sexp (Number _) -> bool_ true
     | _ -> bool_ false
 ;;
 let is_string arg =
-  match unpack_sexp arg with
-    | String _ -> bool_ true
+  match arg with
+    | Sexp (String _) -> bool_ true
     | _ -> bool_ false
 ;;
 let is_bool arg =
-  match unpack_sexp arg with
-    | Bool _ -> bool_ true
+  match arg with
+    | Sexp (Bool _) -> bool_ true
     | _ -> bool_ false
 ;;
 let is_list arg =
-  match unpack_sexp arg with
-    | List _ -> bool_ true
+  match arg with
+    | Sexp (List _) -> bool_ true
     | _ -> bool_ false
 ;;
 let is_pair arg =
-  match unpack_sexp arg with
-    | List (_ :: _) | DottedList _ -> bool_ true
+  match arg with
+    | Sexp (List (_ :: _))
+    | Sexp (DottedList _) -> bool_ true
+    | _ -> bool_ false
+;;
+let is_procedure arg =
+  match arg with
+    | Func _ -> bool_ true
+    | _ -> bool_ false
+;;
+let is_port arg =
+  match arg with
+    | Port _ -> bool_ true
+    | _ -> bool_ false
+;;
+let is_input_port arg =
+  match arg with
+    | Port (InputPort _) -> bool_ true
+    | _ -> bool_ false
+;;
+let is_output_port arg =
+  match arg with
+    | Port (OutputPort _) -> bool_ true
+    | _ -> bool_ false
+;;
+let is_eof_object arg =
+  match arg with
+    | EofObject -> bool_ true
     | _ -> bool_ false
 ;;
 
@@ -227,6 +253,11 @@ let prim_functions eval =
       "bool?", unary_op is_bool;
       "list?", unary_op is_list;
       "pair?", unary_op is_pair;
+      "procedure?", unary_op is_procedure;
+      "port?", unary_op is_port;
+      "input-port?", unary_op is_input_port;
+      "output-port?", unary_op is_output_port;
+      "eof-object?", unary_op is_eof_object;
 
       "symbol->string", string_to_symbol;
       "string->symbol", symbol_to_string;
