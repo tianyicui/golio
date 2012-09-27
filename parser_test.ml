@@ -1,7 +1,9 @@
 open Type
 
+module L = List
+
 let _ =
-  let parse_str str =
+  let parse_str str : value list =
     let lb = Lexing.from_string str in
     let rec go () =
       match Parser.parse Lexer.tokens lb with
@@ -12,61 +14,61 @@ let _ =
 
   let test str rst =
     assert (parse_str str = rst);
-    assert (parse_str (String.concat "\n" (List.map Sexp.print_sexp rst)) = rst)
+    assert (parse_str (String.concat "\n" (L.map Sexp.print_value rst)) = rst)
   in
 
-  test "1" [Number 1];
+  test "1" [number 1];
 
-  test "test-token" [Symbol "test-token"];
+  test "test-token" [symbol "test-token"];
 
-  test "#t #f" [Bool true; Bool false];
+  test "#t #f" [bool_ true; bool_ false];
 
-  test "\"\\\"string\\n\"" [String "\"string\n"];
+  test "\"\\\"string\\n\"" [string_ "\"string\n"];
 
-  test "()" [List []];
+  test "()" [list_ []];
 
-  test "(make-chan)" [List [Symbol "make-chan"]];
+  test "(make-chan)" [list_ [symbol "make-chan"]];
 
-  test "'1" [List [Symbol "quote"; Number 1]];
+  test "'1" [list_ [symbol "quote"; number 1]];
 
-  test "'sym" [List [Symbol "quote"; Symbol "sym"]];
+  test "'sym" [list_ [symbol "quote"; symbol "sym"]];
 
-  test "'()" [List [Symbol "quote"; List []]];
+  test "'()" [list_ [symbol "quote"; list_ []]];
 
   test "(+ (* 3 4) (- -4 5) (/ 2 -1))"
-       [List [Symbol "+";
-              List [Symbol "*"; Number 3; Number 4];
-              List [Symbol "-"; Number (-4); Number 5];
-              List [Symbol "/"; Number 2; Number (-1)]]]
+       [list_ [symbol "+";
+               list_ [symbol "*"; number 3; number 4];
+               list_ [symbol "-"; number (-4); number 5];
+               list_ [symbol "/"; number 2; number (-1)]]]
   ;
 
-  test "(a)(b)" [List [Symbol "a"]; List [Symbol "b"]];
+  test "(a)(b)" [list_ [symbol "a"]; list_ [symbol "b"]];
 
   test "(3 4 . 5)"
-       [DottedList ([Number 3; Number 4], Number 5)];
+       [dotted_list [number 3; number 4] (number 5)];
 
   test "(equal? '(#t . \"5\") (cons #t \"5\"))"
-       [List [Symbol "equal?";
-              List [Symbol "quote";
-                    DottedList ([Bool true], String "5")];
-              List [Symbol "cons"; Bool true; String "5"]]]
+       [list_ [symbol "equal?";
+               list_ [symbol "quote";
+                      dotted_list [bool_ true] (string_ "5")];
+               list_ [symbol "cons"; bool_ true; string_ "5"]]]
   ;
 
   test "; the compose function
         (define ((compose f g) x)  (f (g x)))"
-       [List [Symbol "define";
-              List [List [Symbol "compose"; Symbol "f"; Symbol "g"];
-                    Symbol "x"];
-              List [Symbol "f";
-                    List [Symbol "g"; Symbol "x"]]]]
+       [list_ [symbol "define";
+               list_ [list_ [symbol "compose"; symbol "f"; symbol "g"];
+                      symbol "x"];
+               list_ [symbol "f";
+                      list_ [symbol "g"; symbol "x"]]]]
   ;
 
   test "; comment 1
         (a \"b\") ; comment 2
         ; comment 3
         (c \"d\") ; comment 4"
-       [List [Symbol "a"; String "b"];
-        List [Symbol "c"; String "d"]]
+       [list_ [symbol "a"; string_ "b"];
+        list_ [symbol "c"; string_ "d"]]
   ;
 
   Printf.printf "All passed!\n"

@@ -11,13 +11,13 @@ let rec print_sexp sexp =
     | String str -> sprintf "%S" str
     | Bool true -> sprintf "#t"
     | Bool false -> sprintf "#f"
-    | List [Symbol "quote"; p] ->
-        "'" ^ print_sexp p
+    | List [Sexp (Symbol "quote"); p] ->
+        "'" ^ print_value p
     | List lst ->
-        "(" ^ S.concat " " (L.map print_sexp lst) ^ ")"
+        "(" ^ S.concat " " (L.map print_value lst) ^ ")"
     | DottedList (lst, cdr) ->
-        "(" ^ S.concat " " (L.map print_sexp lst) ^ " . " ^
-        (print_sexp cdr) ^ ")"
+        "(" ^ S.concat " " (L.map print_value lst) ^ " . " ^
+        (print_value cdr) ^ ")"
 
 and print_func func =
   match func with
@@ -38,15 +38,13 @@ and print_func func =
         " " ^
         S.concat " " (L.map print_sexp func.body) ^
         ")"
-;;
 
-let print_macro macro =
+and print_macro macro =
   match macro with
     | PrimMacro (name, _) ->
         sprintf "#<macro:%s>" name
-;;
 
-let print_value value =
+and print_value value =
   match value with
     | Sexp sexp -> print_sexp sexp
     | Func func -> print_func func

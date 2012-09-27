@@ -1,5 +1,7 @@
 %{
 open Type
+
+module L = List
 %}
 
 %token LPAREN RPAREN QUOTE DOT EOF
@@ -8,12 +10,12 @@ open Type
 %token <string> STRING
 %token <bool> BOOL
 %start parse
-%type< Type.sexp option> parse
+%type<Type.value option> parse
 %%
 
 parse:
   | EOF { None }
-  | expr { Some $1 }
+  | expr { Some (Sexp $1) }
 ;
 
 exprs:
@@ -26,8 +28,11 @@ expr:
   | SYMBOL { Symbol $1 }
   | STRING { String $1 }
   | BOOL { Bool $1 }
-  | LPAREN exprs RPAREN { List $2 }
-  | LPAREN exprs DOT expr RPAREN { DottedList ($2, $4) }
   | LPAREN RPAREN { List [] }
-  | QUOTE expr { List [Symbol "quote" ; $2] }
+  | LPAREN exprs RPAREN
+    { List (L.map (fun s -> Sexp s) $2) }
+  | LPAREN exprs DOT expr RPAREN
+    { DottedList ((L.map (fun s -> Sexp s) $2), Sexp $4) }
+  | QUOTE expr
+    { List [Sexp (Symbol "quote") ; Sexp $2] }
 ;
