@@ -114,7 +114,7 @@ let equal a b =
   a = b
 ;;
 
-let apply (eval : Type.env -> Type.value -> Type.env * Type.value) id arg_list =
+let apply eval id arg_list =
   let args = (unpack_list arg_list) in
     match (unpack_func id) with
       | PrimFunc (_, func) ->
