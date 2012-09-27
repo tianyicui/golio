@@ -1,11 +1,15 @@
+let temp_file () =
+  Filename.temp_file "golio-" ""
+;;
+
 let repl_str str =
-  let temp_in = Filename.temp_file "golio-" "" in
+  let temp_in = temp_file () in
   let str_c = open_out temp_in in
     output_string str_c str;
     close_out str_c;
 
     let in_c = open_in temp_in in
-    let temp_out = Filename.temp_file "golio-" "" in
+    let temp_out = temp_file () in
     let out_c = open_out temp_out in
       Repl.repl in_c out_c false;
       close_in in_c;

@@ -33,6 +33,11 @@ let unary_op op params =
     | xs -> invalid_arg (Printf.sprintf "unary_op: expected 1 argument, given %i"
                            (L.length xs))
 ;;
+let str_unary_op op params =
+  match params with
+    | [x] -> op (unpack_str x)
+    | _ -> invalid_arg "str_unary_op: expected 1 argument"
+;;
 
 let is_symbol arg =
   match unpack_sexp arg with
@@ -114,6 +119,49 @@ let equal a b =
   a = b
 ;;
 
+let read params =
+  let lb =
+    unpack_input_port
+      (match params with
+         | [] -> !Port.stdin
+         | [port] -> port
+         | _ -> invalid_arg "read: expected 0 or 1 arguments")
+  in
+    match Parser.parse Lexer.tokens lb with
+      | Some value -> value
+      | None -> EofObject
+;;
+let write params =
+  match params with
+    | [] -> invalid_arg "write: expected 1 or 2 arguments"
+    | obj :: remaining ->
+        let out_c =
+          unpack_output_port
+            (match remaining with
+               | [] -> !Port.stdout
+               | [port] -> port
+               | _ -> invalid_arg "write: expected 1 or 2 arguments"
+            )
+        in
+          output_string out_c (Print.print_value obj);
+          Undefined
+;;
+let open_input_file file =
+  let in_c = open_in file in
+    input_port file (Lexing.from_channel in_c) in_c;
+;;
+let open_output_file file =
+  output_port file (open_out file)
+;;
+let close_input_port arg =
+  close_in (unpack_input_port_for_channel arg);
+  Undefined
+;;
+let close_output_port arg =
+  close_out (unpack_output_port arg);
+  Undefined
+;;
+
 let apply eval id arg_list =
   let args = (unpack_list arg_list) in
     match (unpack_func id) with
@@ -191,6 +239,13 @@ let prim_functions eval =
       "eqv?", bool_any_binop eqv;
       "eq?", bool_any_binop eq;
       "equal?", bool_any_binop equal;
+
+      "read", read;
+      "write", write;
+      "open-input-file", str_unary_op open_input_file;
+      "open-output-file", str_unary_op open_output_file;
+      "close-input-port", unary_op close_input_port;
+      "close-output-port", unary_op close_output_port;
 
       "apply", binary_op (apply eval);
     ]

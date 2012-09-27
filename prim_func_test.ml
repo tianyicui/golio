@@ -76,6 +76,41 @@ let _ =
   test "'()" "()";
   test "'(compose f g)" "(compose f g)";
 
+  test "(read)" "#<eof>";
+  test "(read)  \n  " "#<eof>";
+  test "(read)\n(1 2 3)" "(1 2 3)";
+  test "(read stdin)\n#t" "#t";
+
+  test "(write 5)" "5";
+  test "(write \"\\n\")" "\"\\n\"";
+  test "(write '(a b c) stdout)" "(a b c)";
+
+  begin
+    let temp_in = Helper.temp_file () in
+    let temp_out = Helper.temp_file () in
+    let in_file_c = open_out temp_in in
+      output_string in_file_c "(1 2 3)";
+      close_out in_file_c;
+      let program =
+        Printf.sprintf
+          "(define in (open-input-file  %S))
+           (define out (open-output-file %S))
+           (define x (read in))
+           x
+           (read in)
+           (define y (apply + x))
+           (write y out)
+           (close-input-port in)
+           (close-output-port out)"
+          temp_in
+          temp_out
+      in
+        test program "(1 2 3)\n#<eof>";
+        let out_file_c = open_in temp_out in
+          assert (input_line out_file_c = "6");
+          close_in out_file_c
+  end;
+
   test "(apply * '(2 3 4))" "24";
   test "(define compose
           (lambda (f g)

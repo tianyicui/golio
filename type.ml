@@ -4,6 +4,8 @@ type value =
   | Sexp of sexp
   | Func of func
   | Macro of macro
+  | Port of port
+  | EofObject
   | Undefined
 
 and sexp =
@@ -20,6 +22,10 @@ and func =
 
 and macro =
   | PrimMacro of string * (env -> value list -> env * value)
+
+and port =
+  | InputPort of string * Lexing.lexbuf * in_channel
+  | OutputPort of string * out_channel
 
 and env =
     value ref M.t
@@ -56,6 +62,12 @@ let prim_func name func =
 let user_func func =
   Func (UserFunc func)
 ;;
+let input_port name lb channel =
+  Port (InputPort (name, lb, channel))
+;;
+let output_port name channel =
+  Port (OutputPort (name, channel))
+;;
 
 let unpack_sexp value =
   match value with
@@ -91,4 +103,19 @@ let unpack_func value =
   match value with
     | Func func -> func
     | _ -> invalid_arg "unpack_func: expected a func"
+;;
+let unpack_input_port value =
+  match value with
+    | Port (InputPort (_, lb, _)) -> lb
+    | _ -> invalid_arg "unpack_input_port: expected an input port"
+;;
+let unpack_input_port_for_channel value =
+  match value with
+    | Port (InputPort (_, _, channel)) -> channel
+    | _ -> invalid_arg "unpack_input_port_for_channel: expected an input port"
+;;
+let unpack_output_port value =
+  match value with
+    | Port (OutputPort (_, channel)) -> channel
+    | _ -> invalid_arg "unpack_output_port: expected an output port"
 ;;
