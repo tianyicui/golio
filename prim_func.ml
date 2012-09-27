@@ -61,7 +61,7 @@ let is_list arg =
 ;;
 let is_pair arg =
   match unpack_sexp arg with
-    | List _ | DottedList _ -> bool_ true
+    | List (_ :: _) | DottedList _ -> bool_ true
     | _ -> bool_ false
 ;;
 
@@ -101,6 +101,8 @@ let eqv a b =
         (match x, y with
            | List [], List [] -> true
            | List l1, List l2 -> l1 == l2
+           | DottedList (l1, t1), DottedList (l2, t2)
+             -> (l1 == l2) && (t1 == t2)
            | _ -> x = y
         )
     | _ -> a == b
@@ -176,6 +178,7 @@ let prim_functions eval =
       "number?", unary_op is_number;
       "bool?", unary_op is_bool;
       "list?", unary_op is_list;
+      "pair?", unary_op is_pair;
 
       "symbol->string", string_to_symbol;
       "string->symbol", symbol_to_string;

@@ -30,9 +30,9 @@ let _ =
   test "(string? 'a) (string? \"a\")" "#f\n#t";
   test "(number? #f) (number? 1)" "#f\n#t";
   test "(bool? 't) (bool? #t)" "#f\n#t";
-  test "(list? '()) (list? '(a)) (list? '(a b) (list? '(a b . c))" "#t\n#t\n#t\n#f";
+  test "(list? '()) (list? '(a)) (list? '(a b)) (list? '(a b . c))" "#t\n#t\n#t\n#f";
   test "(list? '(a . b)) (list? 2)" "#f\n#f";
-  test "(pair? '()) (pair? '(a)) (pair? '(a b) (pair? '(a b . c))" "#f\n#t\n#t\n#t";
+  test "(pair? '()) (pair? '(a)) (pair? '(a b)) (pair? '(a b . c))" "#f\n#t\n#t\n#t";
   test "(pair? '(a . b)) (pair? 2)" "#t\n#f";
 
   test "(symbol->string 'a) (string->symbol \"a\")" "\"a\"\na";
@@ -81,6 +81,6 @@ let _ =
           (lambda (f g)
             (lambda args
               (f (apply g args)))))
-        ((compose + *) 12 75)" "900";
+        ((compose + * ) 12 75)" "900";
 
   Printf.printf "All passed!\n"

@@ -16,7 +16,7 @@ and sexp =
 
 and func =
   | PrimFunc of string * (value list -> value)
-  | UserFunc of func_record
+  | UserFunc of user_func
 
 and macro =
   | PrimMacro of string * (env -> value list -> env * value)
@@ -24,7 +24,7 @@ and macro =
 and env =
     value ref M.t
 
-and func_record = {
+and user_func = {
   params : string list;
   vararg : string option;
   body : value list;
@@ -49,6 +49,12 @@ let list_ lst =
 ;;
 let dotted_list lst last =
   Sexp (DottedList (lst, last))
+;;
+let prim_func name func =
+  Func (PrimFunc (name, func))
+;;
+let user_func func =
+  Func (UserFunc func)
 ;;
 
 let unpack_sexp value =

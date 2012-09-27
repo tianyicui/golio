@@ -9,36 +9,26 @@ let prim_env eval =
   in
   let env_with_func =
     env_from_assoc_list
-      (fun k v -> Func (PrimFunc (k, v)))
+      (fun k v -> prim_func k v)
       Env.empty
       (Prim_func.prim_functions eval)
-  in env_with_func
-    (*
+  in
   let env =
     env_from_assoc_list
-      (fun k v -> PrimitiveMacro (k, v))
+      (fun k v -> Macro (PrimMacro (k, v)))
       env_with_func
-      (Lazy.force lazy_prim_macros)
+      (Prim_macro.prim_macros eval)
   in env
-     *)
 
-let rec eval_list env value_list =
-  let env, rst_lst = L.fold_left
-                       (fun (env', lst) sexp ->
-                          let env'',rst = eval env' sexp in
-                            env'', (rst :: lst))
-                       (env, [])
-                       value_list
-  in env, (L.rev rst_lst)
-
-and eval env value =
+let rec eval env value =
   match unpack_sexp value with
+    | Symbol "quote" -> env, Macro (PrimMacro ("quote", (fun e l -> (e, L.hd l))))
     | Symbol id -> (env, Env.get_var id env)
     | List (hd :: tl) ->
         let env', id = eval env hd in
           (match id with
              | Func _ ->
-                 let env'', args = eval_list env' tl in
+                 let env'', args = Eval_list.eval_list eval env' tl in
                    env'', (Prim_func.apply eval id (list_ args))
              | Macro (PrimMacro (_, macro)) ->
                  macro env' tl
