@@ -27,7 +27,7 @@ and env =
 and func_record = {
   params : string list;
   vararg : string option;
-  body : sexp list;
+  body : value list;
   closure : env;
 }
 ;;

@@ -3,198 +3,48 @@ open Type
 module L = List
 module M = Map.Make(String)
 
-
-and quote env param =
-  env, (Primitives.unary_op (fun x -> x) param)
-
-and begin_ env params =
-  match params with
-    | [] -> env, Undefined
-    | _ ->
-        let env', lst = eval_list env params in
-          env', L.hd (L.rev lst)
-
-and if_ env params =
-  let pred, conseq, alt =
-    match params with
-      | [x; y] -> x, y, List [Symbol "quote"; List []]
-      | [x; y; z] -> x, y, z
-      | _ -> invalid_arg "if: expected 2 or more arguments"
-  in
-    match (eval env pred) with
-      | env', Bool false -> eval env' alt
-      | env', _ -> eval env' conseq
-
-and define env params =
-  let named_lambda var params =
-    let func = build_func env params in
-    let func' = {
-      func with
-          closure = Env.def_var var Undefined func.closure
-    } in
-    let rst = Func func' in
-      (Env.set_var var rst func'.closure; rst)
-  in
-  let var, (env', value) =
-    match params with
-      | [Symbol var; expr] ->
-          var, eval env expr
-      | List (Symbol var :: formals) :: body ->
-          var, (env, named_lambda var (List formals :: body))
-      | DottedList ([Symbol var], formal) :: body ->
-          var, (env, named_lambda var (formal :: body))
-      | _ -> invalid_arg "define: invalid arguments"
-  in Env.def_var var value env', Undefined
-
-and set env params =
-  match params with
-    | [Symbol var; expr] ->
-        let env', value = eval env expr in
-          (Env.set_var var value env; env, Undefined)
-    | [_; _] -> invalid_arg "set: first argument should be a symbol"
-    | _ -> invalid_arg "set: expected 2 arguments"
-
-and let_to_apply is_rec env params =
-  let name = if is_rec then "letrec" else "let" in
-  match params with
-    | [] -> invalid_arg (name ^ ": should have a binding list")
-    | (List bindings_sexp) :: body ->
-        let bindings =
-          L.map
-            (fun sexp ->
-               match sexp with
-                 | List [Symbol var; init] -> var, init
-                 | _ -> invalid_arg (name ^ ": invalid binding list"))
-            bindings_sexp
-        in
-        let vars, inits = L.split bindings in
-        let env', values =
-          eval_list
-            (if is_rec
-             then L.fold_left
-                    (fun e v ->
-                       if (Env.is_bound v e)
-                       then Env.def_var v (Env.get_var v e) e
-                       else Env.def_var v Undefined e
-                    )
-                    env
-                    vars
-             else env)
-            inits
-        in
-        begin
-        if is_rec then
-          L.iter2 (fun var value -> Env.set_var var value env') vars values;
-        let func = {params = vars; vararg = None; body = body; closure = env'} in
-            env, apply (Func func) (List values)
-        end
-    | _ -> invalid_arg (name ^ ": invalid binding list")
-
-and let_ env params =
-  let_to_apply false env params
-
-and letrec env params =
-  let_to_apply true env params
-
-and let_star env params =
-  match params with
-    | [] -> invalid_arg "let*: should have a binding list"
-    | (List []) :: body ->
-        begin_ env body
-    | (List (first_binding :: remaining_bindings) :: body) ->
-        let_ env [List [first_binding];
-                  List (Symbol "let*" ::
-                        List remaining_bindings ::
-                        body)]
-    | _ -> invalid_arg "let*: invalid binding list"
-
-and lambda env params =
-  env, Func (build_func env params)
-
-and build_func env params =
-  match params with
-    | Symbol vararg :: body ->
-        {
-          params = [];
-          vararg = Some vararg;
-          body = body;
-          closure = env;
-        }
-    | List params :: body ->
-        {
-          params = L.map Primitives.unpack_sym params;
-          vararg = None;
-          body = body;
-          closure = env;
-        }
-    | DottedList (params, Symbol vararg) :: body ->
-        {
-          params = L.map Primitives.unpack_sym params;
-          vararg = Some vararg;
-          body = body;
-          closure = env;
-        }
-    | _ -> invalid_arg "lambda: invalid arguments list"
-
-and lazy_prim_macros = lazy (
-  [
-    "quote", quote;
-    "begin", begin_;
-    "if", if_;
-    "define", define;
-    "set!", set;
-    "let", let_;
-    "letrec", letrec;
-    "let*", let_star;
-    "lambda", lambda;
-  ]
-)
-
-and lazy_primitive_env = lazy (
-  let env_from_assoc_list f init lst=
+let prim_env eval =
+  let env_from_assoc_list f init lst =
     Env.bind_vars init (L.map (fun (k, v) -> (k, f k v)) lst)
   in
   let env_with_func =
     env_from_assoc_list
-      (fun k v -> PrimitiveFunc (k, v))
+      (fun k v -> Func (PrimFunc (k, v)))
       Env.empty
-      (Lazy.force lazy_prim_functions)
-  in
+      (Prim_func.prim_functions eval)
+  in env_with_func
+    (*
   let env =
     env_from_assoc_list
       (fun k v -> PrimitiveMacro (k, v))
       env_with_func
       (Lazy.force lazy_prim_macros)
   in env
-)
+     *)
 
-and eval_list env sexp_list =
+let rec eval_list env value_list =
   let env, rst_lst = L.fold_left
                        (fun (env', lst) sexp ->
                           let env'',rst = eval env' sexp in
                             env'', (rst :: lst))
                        (env, [])
-                       sexp_list
+                       value_list
   in env, (L.rev rst_lst)
 
-and eval env sexp =
-  match sexp with
-    | String _ | Number _ | Bool _
-    | PrimitiveFunc _ | Func _
-    | PrimitiveMacro _ -> (env, sexp)
+and eval env value =
+  match unpack_sexp value with
     | Symbol id -> (env, Env.get_var id env)
     | List (hd :: tl) ->
         let env', id = eval env hd in
           (match id with
-             | PrimitiveFunc _
              | Func _ ->
                  let env'', args = eval_list env' tl in
-                   env'', (apply id (List args))
-             | PrimitiveMacro (_, macro) ->
+                   env'', (Prim_func.apply eval id (list_ args))
+             | Macro (PrimMacro (_, macro)) ->
                  macro env' tl
              | _ -> invalid_arg "eval: invalid application"
           )
     | List [] -> invalid_arg "eval: invalid application"
     | DottedList _ -> invalid_arg "eval: cannot eval dotted list"
-    | Undefined -> invalid_arg "eval: cannot eval undefined value"
+    | sexp -> env, Sexp sexp
 ;;

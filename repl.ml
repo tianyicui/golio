@@ -13,8 +13,8 @@ let repl in_c out_c is_interactive =
             let env', rst = Eval.eval env sexp in
               begin match rst with
                 | Type.Undefined -> ()
-                | _ -> fprintf out_c "%s\n" (Sexp.print_sexp rst)
+                | _ -> fprintf out_c "%s\n" (Sexp.print_value rst)
               end;
               go env';
-  in go (Lazy.force Eval.lazy_primitive_env)
+  in go (Eval.prim_env Eval.eval)
 ;;
