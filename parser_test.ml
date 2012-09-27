@@ -3,7 +3,7 @@ open Type
 module L = List
 
 let _ =
-  let parse_str str : value list =
+  let parse_str str =
     let lb = Lexing.from_string str in
     let rec go () =
       match Parser.parse Lexer.tokens lb with
