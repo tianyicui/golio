@@ -158,6 +158,29 @@ let lambda eval env params =
   env, user_func (build_func env params)
 ;;
 
+let load eval env params =
+  let load_file env filename =
+    let in_c = open_in filename in
+    let lb = Lexing.from_channel in_c in
+    let parse () = Parser.parse Lexer.tokens lb in
+    let rec go env =
+      match parse () with
+        | None -> (close_in in_c; env)
+        | Some sexp -> fst (eval env sexp)
+    in go env
+  in
+  match params with
+    | [param] ->
+        let env', arg = eval env param in
+          (match arg with
+             | Sexp (String filename) ->
+                 (load_file env' filename, Undefined)
+             | _ ->
+                 invalid_arg "load: the argument should be a string"
+          )
+    | _ -> invalid_arg "load: should have one single argument"
+;;
+
 let prim_macros eval =
   L.map
     (fun (k, v) -> (k, v eval))
@@ -171,5 +194,6 @@ let prim_macros eval =
       "letrec", letrec;
       "let*", let_star;
       "lambda", lambda;
+      "load", load;
     ]
 ;;

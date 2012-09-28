@@ -84,4 +84,13 @@ let _ =
         (your-count -1)"
        "8\n10\n14\n19\n9";
 
+  begin
+    let temp_file = Helper.temp_file () in
+    let out_c = open_out temp_file in
+      output_string out_c "(define x 'loaded)";
+      close_out out_c;
+      test (Printf.sprintf "(load %S) x" temp_file) "loaded";
+  end;
+
+
   Printf.printf "All passed!\n"

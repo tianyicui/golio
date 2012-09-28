@@ -1,6 +1,5 @@
 * current
     * continuous refactor
-    * `load`
     * add tail recursion? test case: `(define (f x) (if (= x 0) 0 (f (- x 1)))) (f 100000)`
     * standard library
     * quasiquote and user-defined macro

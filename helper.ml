@@ -11,7 +11,14 @@ let repl_str str =
     let in_c = open_in temp_in in
     let temp_out = temp_file () in
     let out_c = open_out temp_out in
-      Repl.repl in_c out_c false;
+      (let open Repl in
+         repl {
+           stdin = in_c;
+           stdout = out_c;
+           lexbuf = None;
+           interactive = false;
+           print_result = true;
+         });
       close_in in_c;
       close_out out_c;
 
