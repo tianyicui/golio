@@ -188,39 +188,16 @@ let close_output_port arg =
   Undefined
 ;;
 
-let apply eval id arg_list =
+let apply id arg_list =
   let args = (unpack_list arg_list) in
     match (unpack_func id) with
       | PrimFunc (_, func) ->
           func args
       | UserFunc func ->
-          let params_len = L.length func.params in
-          let args_len = L.length args in
-          let env =
-            (match func.vararg with
-               | None ->
-                   if params_len == args_len then
-                     Env.bind_vars func.closure (List.combine func.params args)
-                   else invalid_arg ("apply: invalid number of args, expected " ^
-                                     string_of_int params_len ^ ", given " ^
-                                     string_of_int args_len)
-               | Some vararg ->
-                   if params_len <= args_len then
-                     let rec go params args =
-                       begin match params with
-                         | [] -> Env.def_var vararg (list_ args) func.closure
-                         | x :: xs -> Env.def_var x (L.hd args) (go xs (L.tl args))
-                       end
-                     in go func.params args
-                     else invalid_arg ("apply: invalid number of args, expected " ^
-                                       string_of_int params_len ^ "+, given " ^
-                                       string_of_int args_len)
-            )
-          in
-            snd (Eval_list.last eval env func.body)
+          Thunk (func, args)
 ;;
 
-let prim_functions eval =
+let prim_functions =
     [
       "+", num_binop (+);
       "-", num_binop (-);
@@ -275,6 +252,6 @@ let prim_functions eval =
       "close-input-port", unary_op close_input_port;
       "close-output-port", unary_op close_output_port;
 
-      "apply", binary_op (apply eval);
+      "apply", binary_op apply;
     ]
 ;;

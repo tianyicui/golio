@@ -31,5 +31,5 @@ let repl conf =
                         fprintf out_c "%s\n" (Print.print_value rst)
                 end;
                 go env';
-    in go (Prim_env.prim_env Eval.eval)
+    in go (Prim_env.prim_env ())
 ;;

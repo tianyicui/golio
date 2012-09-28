@@ -2,7 +2,7 @@ open Type
 
 module L = List
 
-let prim_env eval =
+let prim_env () =
   let env_from_assoc_list f init lst =
     Env.bind_vars init (L.map (fun (k, v) -> (k, f k v)) lst)
   in
@@ -16,12 +16,12 @@ let prim_env eval =
     env_from_assoc_list
       (fun k v -> prim_func k v)
       env_with_port
-      (Prim_func.prim_functions eval)
+      Prim_func.prim_functions
   in
   let env =
     env_from_assoc_list
       (fun k v -> Macro (PrimMacro (k, v)))
       env_with_func
-      (Prim_macro.prim_macros eval)
+      Prim_macro.prim_macros
   in env
 ;;

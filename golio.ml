@@ -26,8 +26,7 @@ let _ =
           }
       | [| _; filename |] ->
           ignore (Prim_macro.load
-                    Eval.eval
-                    (Prim_env.prim_env Eval.eval)
+                    (Prim_env.prim_env ())
                     [Type.String filename])
       | [| _ |] ->
           repl {

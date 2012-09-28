@@ -7,6 +7,7 @@ type value =
   | Port of port
   | EofObject
   | Undefined
+  | Thunk of user_func * value list
 
 and sexp =
   | Number of int

@@ -12,7 +12,7 @@ do
 	if ! ocamlbuild -no-links -nothing-should-be-rebuilt $target >/dev/null
 	then
 		echo "$bold>>> $name$normal"
-		if ! OCAMLRUNPARAM=b ocamlbuild -no-links $target --
+		if ! OCAMLRUNPARAM=b,l=64K ocamlbuild -no-links $target --
 		then
 			rm _build/$target
 			exit 1

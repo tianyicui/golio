@@ -2,28 +2,28 @@ open Type
 
 module L = List
 
-let quote eval env param =
+let quote env param =
   env, (Prim_func.unary_op (fun x -> Sexp x) param)
 ;;
 
-let begin_ eval env params =
-  Eval_list.last eval env params
+let begin_ env params =
+  Eval.eval_all env params
 ;;
 
-let if_ eval env params =
+let if_ env params =
   let pred, conseq, optional_alt =
     match params with
       | [x; y] -> x, y, None
       | [x; y; z] -> x, y, Some z
       | _ -> invalid_arg "if: expected 2 or more arguments"
   in
-    match (eval env pred) with
+    match (Eval.eval env pred) with
       | env', Sexp (Bool false) ->
           (match optional_alt with
-             | Some alt -> eval env' alt
+             | Some alt -> Eval.eval ~tail:true env' alt
              | None -> env', list_ []
           )
-      | env', _ -> eval env' conseq
+      | env', _ -> Eval.eval ~tail:true env' conseq
 ;;
 
 let build_func env params =
@@ -52,7 +52,7 @@ let build_func env params =
     | _ -> invalid_arg "lambda: invalid arguments list"
 ;;
 
-let define eval env params =
+let define env params =
   let pair_cdr sexp =
     match sexp with
       | List (_ :: xs) -> List xs
@@ -72,7 +72,7 @@ let define eval env params =
   let var, (env', value) =
     match params with
       | [Symbol var; expr] ->
-          var, eval env expr
+          var, Eval.eval env expr
       | List [] :: _ -> invalid_arg "define: empty definition list"
       | (List (Sexp (Symbol var) :: _) as def) :: body
       | (DottedList ((Sexp (Symbol var) :: _), _) as def) :: body ->
@@ -82,17 +82,17 @@ let define eval env params =
     Env.def_var var value env', Undefined
 ;;
 
-let set eval env params =
+let set env params =
   match params with
     | [Symbol var; expr] ->
-        let env', value = eval env expr in
+        let env', value = Eval.eval env expr in
           (Env.set_var var value env;
            env, Undefined)
     | [_; _] -> invalid_arg "set!: first argument should be a symbol"
     | _ -> invalid_arg "set!: expected 2 arguments"
 ;;
 
-let let_to_apply is_rec eval env params =
+let let_to_apply is_rec env params =
   let def_vars vars env =
     L.fold_left
       (fun e v ->
@@ -116,13 +116,13 @@ let let_to_apply is_rec eval env params =
             bindings
         ) in
         let env', values =
-          Eval_list.map eval (if is_rec then def_vars vars env else env) inits
+          Eval.map (if is_rec then def_vars vars env else env) inits
         in
         begin
         if is_rec then
           L.iter2 (fun var value -> Env.set_var var value env') vars values;
         let func = {params = vars; vararg = None; body = body; closure = env'} in
-            env, Prim_func.apply eval (user_func func) (list_ values)
+            env, Prim_func.apply (user_func func) (list_ values)
         end
     | _ -> invalid_arg (name ^ ": invalid binding list")
 ;;
@@ -135,7 +135,7 @@ let letrec =
   let_to_apply true
 ;;
 
-let let_star eval env params =
+let let_star env params =
   match params with
     | [] -> invalid_arg "let*: should have a binding list"
     | List bindings :: body ->
@@ -144,21 +144,21 @@ let let_star eval env params =
             (fun e b ->
                match b with
                  | Sexp (List l) ->
-                     fst (define eval e (L.map unpack_sexp l))
+                     fst (define e (L.map unpack_sexp l))
                  | _ -> invalid_arg "let*: invalid binding list"
             )
             env
             bindings
         in
-          env, snd (begin_ eval env' body)
+          env, snd (begin_ env' body)
     | _ -> invalid_arg "let*: invalid binding list"
 ;;
 
-let lambda eval env params =
+let lambda env params =
   env, user_func (build_func env params)
 ;;
 
-let load eval env params =
+let load env params =
   let load_file env filename =
     let in_c = open_in filename in
     let lb = Lexing.from_channel in_c in
@@ -166,12 +166,12 @@ let load eval env params =
     let rec go env =
       match parse () with
         | None -> (close_in in_c; env)
-        | Some sexp -> fst (eval env sexp)
+        | Some sexp -> fst (Eval.eval env sexp)
     in go env
   in
   match params with
     | [param] ->
-        let env', arg = eval env param in
+        let env', arg = Eval.eval env param in
           (match arg with
              | Sexp (String filename) ->
                  (load_file env' filename, Undefined)
@@ -181,19 +181,17 @@ let load eval env params =
     | _ -> invalid_arg "load: should have one single argument"
 ;;
 
-let prim_macros eval =
-  L.map
-    (fun (k, v) -> (k, v eval))
-    [
-      "quote", quote;
-      "begin", begin_;
-      "if", if_;
-      "define", define;
-      "set!", set;
-      "let", let_;
-      "letrec", letrec;
-      "let*", let_star;
-      "lambda", lambda;
-      "load", load;
-    ]
+let prim_macros =
+  [
+    "quote", quote;
+    "begin", begin_;
+    "if", if_;
+    "define", define;
+    "set!", set;
+    "let", let_;
+    "letrec", letrec;
+    "let*", let_star;
+    "lambda", lambda;
+    "load", load;
+  ]
 ;;

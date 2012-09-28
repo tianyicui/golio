@@ -1,6 +1,6 @@
 * current
     * continuous refactor
-    * add tail recursion? test case: `(define (f x) (if (= x 0) 0 (f (- x 1)))) (f 100000)`
+    * add `golio_test.ml`...
     * standard library
     * quasiquote and user-defined macro
 

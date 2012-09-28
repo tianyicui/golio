@@ -60,5 +60,7 @@ and print_value value =
     | EofObject ->
         "#<eof>"
     | Undefined ->
-        failwith "print_sexp: should not print Undefined"
+        failwith "print_value: should not print Undefined"
+    | Thunk _ ->
+        failwith "print_value: should not print Thunk"
 ;;
