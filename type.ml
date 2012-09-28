@@ -21,7 +21,7 @@ and func =
   | UserFunc of user_func
 
 and macro =
-  | PrimMacro of string * (env -> value list -> env * value)
+  | PrimMacro of string * (env -> sexp list -> env * value)
 
 and port =
   | InputPort of string * Lexing.lexbuf * in_channel
@@ -33,7 +33,7 @@ and env =
 and user_func = {
   params : string list;
   vararg : string option;
-  body : value list;
+  body : sexp list;
   closure : env;
 }
 ;;

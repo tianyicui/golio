@@ -1,10 +1,17 @@
+* continuous refactor
+    * refactor `Prim_macro.define`.
+    * `Prim_macro.if_` should not use `symbol "quote"`.
+    * `let*` should use one pass to convert to a `begin` `define` block.
+    * better exception
+
 * standard library
+
 * quasiquote and user-defined macro
-* more refactor, including better exception machanism
 
 * GOROUTINES AND CHANNELS!
 
-* `eval`
-* `delay` and `force`
-* add tail recursion? test case: `(define (f x) (if (= x 0) 0 (f (- x 1)))) (f 100000)`
-* `call-with-current-continuation` and `dynaic-wind`?
+* features
+    * `eval`
+    * `delay` and `force`
+    * add tail recursion? test case: `(define (f x) (if (= x 0) 0 (f (- x 1)))) (f 100000)`
+    * `call-with-current-continuation` and `dynaic-wind`?

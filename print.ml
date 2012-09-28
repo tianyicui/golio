@@ -36,7 +36,7 @@ and print_func func =
               ) ^ ")"
         end ^
         " " ^
-        S.concat " " (L.map print_value func.body) ^
+        S.concat " " (L.map print_sexp func.body) ^
         ")"
 
 and print_macro macro =
