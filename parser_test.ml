@@ -13,8 +13,9 @@ let _ =
   in
 
   let test str rst =
-    assert (parse_str str = rst);
-    assert (parse_str (String.concat "\n" (L.map Print.print_value rst)) = rst)
+    let sexp = L.map unpack_sexp rst in
+      assert (parse_str str = sexp);
+      assert (parse_str (String.concat "\n" (L.map Print.print_sexp sexp)) = sexp)
   in
 
   test "1" [number 1];

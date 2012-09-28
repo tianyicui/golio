@@ -154,7 +154,7 @@ let read params =
          | _ -> invalid_arg "read: expected 0 or 1 arguments")
   in
     match Parser.parse Lexer.tokens lb with
-      | Some value -> value
+      | Some value -> Sexp value
       | None -> EofObject
 ;;
 let write params =

@@ -10,12 +10,12 @@ module L = List
 %token <string> STRING
 %token <bool> BOOL
 %start parse
-%type<Type.value option> parse
+%type<Type.sexp option> parse
 %%
 
 parse:
   | EOF { None }
-  | expr { Some (Sexp $1) }
+  | expr { Some $1 }
 ;
 
 exprs:

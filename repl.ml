@@ -11,7 +11,7 @@ let repl in_c out_c is_interactive =
         match parse () with
           | None -> ()
           | Some sexp ->
-              let env', rst = Eval.eval env sexp in
+              let env', rst = Eval.eval env (Type.Sexp sexp) in
                 begin match rst with
                   | Type.Undefined -> ()
                   | _ -> fprintf out_c "%s\n" (Print.print_value rst)
