@@ -166,7 +166,7 @@ let load env params =
     let rec go env =
       match parse () with
         | None -> (close_in in_c; env)
-        | Some sexp -> fst (Eval.eval env sexp)
+        | Some sexp -> go (fst (Eval.eval env sexp))
     in go env
   in
   match params with

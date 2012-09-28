@@ -23,5 +23,6 @@ let prim_env () =
       (fun k v -> Macro (PrimMacro (k, v)))
       env_with_func
       Prim_macro.prim_macros
-  in env
+  in
+    fst (Prim_macro.load env [String "stdlib.scm"])
 ;;

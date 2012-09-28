@@ -87,9 +87,9 @@ let _ =
   begin
     let temp_file = Helper.temp_file () in
     let out_c = open_out temp_file in
-      output_string out_c "(define x 'loaded)";
+      output_string out_c "(define x 'loaded) (define y 'ok)";
       close_out out_c;
-      test (Printf.sprintf "(load %S) x" temp_file) "loaded";
+      test (Printf.sprintf "(load %S) x y" temp_file) "loaded\nok";
   end;
 
 
