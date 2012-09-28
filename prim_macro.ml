@@ -7,11 +7,7 @@ let quote eval env param =
 ;;
 
 let begin_ eval env params =
-  match params with
-    | [] -> env, Undefined
-    | _ ->
-        let env', lst = Eval_list.eval_list eval env params in
-          env', L.hd (L.rev lst)
+  Eval_list.last eval env params
 ;;
 
 let if_ eval env params =
@@ -109,7 +105,7 @@ let let_to_apply is_rec eval env params =
         in
         let vars, inits = L.split bindings in
         let env', values =
-          Eval_list.eval_list
+          Eval_list.map
             eval
             (if is_rec
              then L.fold_left

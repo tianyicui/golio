@@ -216,11 +216,8 @@ let apply eval id arg_list =
                                        string_of_int params_len ^ "+, given " ^
                                        string_of_int args_len)
             )
-          in snd
-               (L.fold_left
-                  (fun (env', _) sexp -> eval env' sexp)
-                  (env, Undefined)
-                  func.body)
+          in
+            snd (Eval_list.last eval env func.body)
 ;;
 
 let prim_functions eval =

@@ -1,6 +1,8 @@
+open Type
+
 module L = List
 
-let eval_list eval env sexp_list =
+let map eval env sexp_list =
   let env, rst_lst =
     L.fold_left
       (fun (env', lst) sexp ->
@@ -9,4 +11,11 @@ let eval_list eval env sexp_list =
       (env, [])
       sexp_list
   in env, (L.rev rst_lst)
+;;
+
+let last eval env sexp_list =
+  L.fold_left
+    (fun (env', _) sexp -> eval env' sexp)
+    (env, Undefined)
+    sexp_list
 ;;

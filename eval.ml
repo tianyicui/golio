@@ -12,7 +12,7 @@ let rec eval env sexp =
                let env', id = eval env hd in
                  (match id with
                     | Func _ ->
-                        let env'', args = Eval_list.eval_list eval env' tl in
+                        let env'', args = Eval_list.map eval env' tl in
                           env'', (Prim_func.apply eval id (list_ args))
                     | Macro (PrimMacro (_, macro)) ->
                         macro env' tl
