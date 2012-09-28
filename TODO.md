@@ -1,5 +1,6 @@
 * current
     * continuous refactor
+    * refine OASIS
     * quasiquote and user-defined macro
     * add `golio_test.ml`...
 
@@ -7,7 +8,6 @@
 
 * later
     * better exception
-    * OASIS
     * `eval`
     * `delay` and `force`
     * `call-with-current-continuation` and `dynaic-wind`?

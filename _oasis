@@ -1,0 +1,73 @@
+OASISFormat: 0.3
+Name:        golio
+Version:     0.1-dev
+Synopsis:    GoLio is a lisp dialect implemented in OCaml with a go-like
+  concurrency model (i.e, goroutines and channels).
+Authors:     Tianyi Cui
+License:     MIT
+BuildTools:  ocamlbuild
+Homepage:    https://github.com/tianyicui/golio
+
+Library libgolio
+  Path:         lib/
+  Modules:      Type, Print, Lexer, Parser, Env, Prim_func, Prim_macro,
+    Prim_env, Port, Runtime_conf, Eval, Repl, Helper
+  
+Executable golio
+  Path:         golio/
+  MainIs:       golio.ml
+  BuildDepends: libgolio
+  
+Executable lexer_test
+  Path:         tests
+  MainIs:       lexer_test.ml
+  Install:      false
+  BuildDepends: libgolio
+  
+Test lexer_test
+  Command:      $lexer_test
+  
+Executable parser_test
+  Path:         tests
+  MainIs:       parser_test.ml
+  Install:      false
+  BuildDepends: libgolio
+  
+Test parser_test
+  Command:      $parser_test
+  
+Executable prim_func_test
+  Path:         tests
+  MainIs:       prim_func_test.ml
+  Install:      false
+  BuildDepends: libgolio
+  
+Test prim_func_test
+  Command:      $prim_func_test
+  
+Executable prim_macro_test
+  Path:         tests
+  MainIs:       prim_macro_test.ml
+  Install:      false
+  BuildDepends: libgolio
+  
+Test prim_macro_test
+  Command:      $prim_macro_test
+  
+Executable tail_call_test
+  Path:         tests
+  MainIs:       tail_call_test.ml
+  Install:      false
+  BuildDepends: libgolio
+  
+Test tail_call_test
+  Command:      $tail_call_test
+  
+Executable stdlib_test
+  Path:         tests
+  MainIs:       stdlib_test.ml
+  Install:      false
+  BuildDepends: libgolio
+  
+Test stdlib_test
+  Command:      $stdlib_test

@@ -10,3 +10,6 @@
 *.native
 *.o
 _build/
+_tags
+setup.*
+myocamlbuild.ml

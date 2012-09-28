@@ -1,2 +1,0 @@
-#!/bin/bash
-OCAMLRUNPARAM=b exec ledit ocamlbuild -no-links golio.d.byte -- "$@"
