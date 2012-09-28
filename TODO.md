@@ -1,6 +1,4 @@
 * continuous refactor
-    * refactor `Prim_macro.define`.
-    * `Prim_macro.if_` should not use `symbol "quote"`.
     * `let*` should use one pass to convert to a `begin` `define` block.
     * better exception
 

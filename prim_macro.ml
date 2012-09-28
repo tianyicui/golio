@@ -15,14 +15,18 @@ let begin_ eval env params =
 ;;
 
 let if_ eval env params =
-  let pred, conseq, alt =
+  let pred, conseq, optional_alt =
     match params with
-      | [x; y] -> x, y, List [symbol "quote"; list_ []]
-      | [x; y; z] -> x, y, z
+      | [x; y] -> x, y, None
+      | [x; y; z] -> x, y, Some z
       | _ -> invalid_arg "if: expected 2 or more arguments"
   in
     match (eval env pred) with
-      | env', Sexp (Bool false) -> eval env' alt
+      | env', Sexp (Bool false) ->
+          (match optional_alt with
+             | Some alt -> eval env' alt
+             | None -> env', list_ []
+          )
       | env', _ -> eval env' conseq
 ;;
 
@@ -53,6 +57,13 @@ let build_func env params =
 ;;
 
 let define eval env params =
+  let pair_cdr sexp =
+    match sexp with
+      | List (_ :: xs) -> List xs
+      | DottedList ([_], x) -> unpack_sexp x
+      | DottedList ((_ :: xs), x) -> DottedList (xs, x)
+      | _ -> failwith "unreachable"
+  in
   let named_lambda var params =
     let func = build_func env params in
     let func' = {
@@ -66,12 +77,10 @@ let define eval env params =
     match params with
       | [Symbol var; expr] ->
           var, eval env expr
-      | List (Sexp (Symbol var) :: formals) :: body ->
-          var, (env, named_lambda var (List formals :: body))
-      | DottedList ([Sexp (Symbol var)], Sexp formal) :: body ->
-          var, (env, named_lambda var (formal :: body))
-      | DottedList ((Sexp (Symbol var) :: formals), formal) :: body ->
-          var, (env, named_lambda var (DottedList (formals, formal) :: body))
+      | List [] :: _ -> invalid_arg "define: empty definition list"
+      | (List (Sexp (Symbol var) :: _) as def) :: body
+      | (DottedList ((Sexp (Symbol var) :: _), _) as def) :: body ->
+          var, (env, named_lambda var (pair_cdr def :: body))
       | _ -> invalid_arg "define: invalid arguments"
   in Env.def_var var value env', Undefined
 ;;
