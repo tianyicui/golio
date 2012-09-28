@@ -78,46 +78,45 @@ let define eval env params =
       | (DottedList ((Sexp (Symbol var) :: _), _) as def) :: body ->
           var, (env, named_lambda var (pair_cdr def :: body))
       | _ -> invalid_arg "define: invalid arguments"
-  in Env.def_var var value env', Undefined
+  in
+    Env.def_var var value env', Undefined
 ;;
 
 let set eval env params =
   match params with
     | [Symbol var; expr] ->
         let env', value = eval env expr in
-          (Env.set_var var value env; env, Undefined)
+          (Env.set_var var value env;
+           env, Undefined)
     | [_; _] -> invalid_arg "set!: first argument should be a symbol"
     | _ -> invalid_arg "set!: expected 2 arguments"
 ;;
 
 let let_to_apply is_rec eval env params =
+  let def_vars vars env =
+    L.fold_left
+      (fun e v ->
+         if (Env.is_bound v e)
+         then Env.def_var v (Env.get_var v e) e
+         else Env.def_var v Undefined e
+      )
+      env
+      vars
+  in
   let name = if is_rec then "letrec" else "let" in
   match params with
     | [] -> invalid_arg (name ^ ": should have a binding list")
-    | List bindings_list :: body ->
-        let bindings =
+    | List bindings :: body ->
+        let vars, inits = L.split (
           L.map
-            (fun init ->
-               match unpack_sexp init with
+            (fun binding ->
+               match unpack_sexp binding with
                  | List [Sexp (Symbol var); Sexp init] -> var, init
                  | _ -> invalid_arg (name ^ ": invalid binding list"))
-            bindings_list
-        in
-        let vars, inits = L.split bindings in
+            bindings
+        ) in
         let env', values =
-          Eval_list.map
-            eval
-            (if is_rec
-             then L.fold_left
-                    (fun e v ->
-                       if (Env.is_bound v e)
-                       then Env.def_var v (Env.get_var v e) e
-                       else Env.def_var v Undefined e
-                    )
-                    env
-                    vars
-             else env)
-            inits
+          Eval_list.map eval (if is_rec then def_vars vars env else env) inits
         in
         begin
         if is_rec then
@@ -139,13 +138,19 @@ let letrec =
 let let_star eval env params =
   match params with
     | [] -> invalid_arg "let*: should have a binding list"
-    | List [] :: body ->
-        begin_ eval env body
-    | List (first_binding :: remaining_bindings) :: body ->
-        let_ eval env [List [first_binding];
-                       List (symbol "let*" ::
-                             list_ remaining_bindings ::
-                             (L.map (fun s -> Sexp s) body))]
+    | List bindings :: body ->
+        let env' =
+          L.fold_left
+            (fun e b ->
+               match b with
+                 | Sexp (List l) ->
+                     fst (define eval e (L.map unpack_sexp l))
+                 | _ -> invalid_arg "let*: invalid binding list"
+            )
+            env
+            bindings
+        in
+          env, snd (begin_ eval env' body)
     | _ -> invalid_arg "let*: invalid binding list"
 ;;
 

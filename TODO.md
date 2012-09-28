@@ -1,6 +1,6 @@
 * continuous refactor
-    * `let*` should use one pass to convert to a `begin` `define` block.
     * better exception
+    * in macro implementation, the syntax parsing and actual implementation should be seperated?
 
 * standard library
 
