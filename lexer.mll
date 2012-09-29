@@ -3,13 +3,16 @@ open Parser
 }
 
 let character =
-  ['a'-'z' 'A'-'Z' '!' '#' '$' '%' '&' '|' '*' '+' '-' '/' ':' '<' '=' '>' '?' '@' '^' '_' '~']
+  ['a'-'z' 'A'-'Z' '!' '#' '$' '%' '&' '|' '*' '+' '-' '.' '/' ':' '<' '=' '>' '?' '@' '^' '_' '~']
 
 rule tokens = parse
   | '(' { LPAREN }
   | ')' { RPAREN }
   | ''' { QUOTE }
   | '.' { DOT }
+  | '`' { QUASIQUOTE }
+  | ',' { UNQUOTE }
+  | ",@" { UNQUOTE_SPLICING }
   | ';' { comments lexbuf }
   | '-'? ('0' | (['1'-'9'] ['0'-'9']*)) as number { NUMBER (int_of_string number) }
   | '"' (([^'"''\\'] | ('\\' _))* as str) '"' {

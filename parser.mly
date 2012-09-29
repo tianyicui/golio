@@ -4,7 +4,7 @@ open Type
 module L = List
 %}
 
-%token LPAREN RPAREN QUOTE DOT EOF
+%token LPAREN RPAREN QUOTE DOT QUASIQUOTE UNQUOTE UNQUOTE_SPLICING EOF
 %token <int> NUMBER
 %token <string> SYMBOL
 %token <string> STRING
@@ -35,4 +35,10 @@ expr:
     { DottedList ((L.map (fun s -> Sexp s) $2), Sexp $4) }
   | QUOTE expr
     { List [Sexp (Symbol "quote") ; Sexp $2] }
+  | QUASIQUOTE expr
+    { List [Sexp (Symbol "quasiquote") ; Sexp $2] }
+  | UNQUOTE expr
+    { List [Sexp (Symbol "unquote") ; Sexp $2] }
+  | UNQUOTE_SPLICING expr
+    { List [Sexp (Symbol "unquote-splicing") ; Sexp $2] }
 ;

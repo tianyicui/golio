@@ -18,23 +18,28 @@ let _ =
       assert (parse_str (String.concat "\n" (L.map Print.print_sexp sexp)) = sexp)
   in
 
-  test "1" [number 1];
+  test "1 -1" [number 1; number (-1)];
 
   test "test-token" [symbol "test-token"];
+  test "test.token" [symbol "test.token"];
 
   test "#t #f" [bool_ true; bool_ false];
 
   test "\"\\\"string\\n\"" [string_ "\"string\n"];
 
   test "()" [list_ []];
-
   test "(make-chan)" [list_ [symbol "make-chan"]];
 
   test "'1" [list_ [symbol "quote"; number 1]];
-
   test "'sym" [list_ [symbol "quote"; symbol "sym"]];
-
   test "'()" [list_ [symbol "quote"; list_ []]];
+  test "'()" [list_ [symbol "quote"; list_ []]];
+
+  test "`()" [list_ [symbol "quasiquote"; list_ []]];
+
+  test ",()" [list_ [symbol "unquote"; list_ []]];
+
+  test ",@()" [list_ [symbol "unquote-splicing"; list_ []]];
 
   test "(+ (* 3 4) (- -4 5) (/ 2 -1))"
        [list_ [symbol "+";

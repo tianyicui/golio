@@ -16,4 +16,7 @@ let _ =
 
     test "0 -0" [NUMBER 0; NUMBER 0; EOF];
 
+    test "`a ,-1 ,@()"
+      [QUASIQUOTE ; SYMBOL "a"; UNQUOTE; NUMBER (-1); UNQUOTE_SPLICING; LPAREN; RPAREN; EOF];
+
     Printf.printf "All passed!\n"
