@@ -35,6 +35,7 @@ let _ =
 
   test "(define x -2) x (set! x (* x x)) x" "-2\n4";
   test_exn "(set! x 1)" (Failure "set_var: cannot set undefined variable x");
+  test "(define x 3) (define y 4) (let ((t x)) (set! x y) (set! y t)) x y" "4\n3";
 
   test "(let ((x 2) (y 3)) (* x y))" "6";
   test "(let ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))" "35";
