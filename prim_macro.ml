@@ -122,7 +122,7 @@ let let_to_apply is_rec env params =
         if is_rec then
           L.iter2 (fun var value -> Env.set_var var value env') vars values;
         let func = {params = vars; vararg = None; body = body; closure = env'} in
-            env, Prim_func.apply (user_func func) (list_ values)
+            env, Prim_func.apply [user_func func; list_ values]
         end
     | _ -> invalid_arg (name ^ ": invalid binding list")
 ;;

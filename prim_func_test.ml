@@ -127,5 +127,7 @@ let _ =
             (lambda args
               (f (apply g args)))))
         ((compose + *) 12 75)" "900";
+  test "(apply min '(6 8 3 2 5))" "2";
+  test "(apply min 5 1 3 '(6 8 3 2 5))" "1";
 
   Printf.printf "All passed!\n"

@@ -62,7 +62,7 @@ and eval ?(tail=false) env sexp =
                    (match id with
                       | Func _ ->
                           let env'', args = map env' tl in
-                            env'', Prim_func.apply id (list_ args)
+                            env'', Prim_func.apply [id; list_ args]
                       | Macro (PrimMacro (_, macro)) ->
                           macro env' tl
                       | _ -> invalid_arg "eval: invalid application"

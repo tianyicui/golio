@@ -1,4 +1,5 @@
 * current
+    * top level definition: test case `(define plus (lambda (x) (+ x y))) (define y 1) (plus 3)`
     * continuous refactor
     * quasiquote and user-defined macro
     * add `golio_test.ml`...

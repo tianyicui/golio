@@ -188,13 +188,26 @@ let close_output_port arg =
   Undefined
 ;;
 
-let apply id arg_list =
-  let args = (unpack_list arg_list) in
-    match (unpack_func id) with
-      | PrimFunc (_, func) ->
-          func args
-      | UserFunc func ->
-          Thunk (func, args)
+let apply params =
+  match params with
+    | []
+    | [_] ->
+        invalid_arg "apply: should have 2 or more arguments"
+    | (Func func) :: args ->
+        let arg =
+          (let rec go args =
+             match args with
+               | [last] -> unpack_list last
+               | x :: xs -> x :: (go xs)
+               | _ -> failwith "unreachable"
+           in go args)
+        in
+          (match func with
+            | PrimFunc (_, func) ->
+                func arg
+            | UserFunc func ->
+                Thunk (func, arg))
+    | _ -> invalid_arg "apply: not applicable"
 ;;
 
 let prim_functions =
@@ -252,6 +265,6 @@ let prim_functions =
       "close-input-port", unary_op close_input_port;
       "close-output-port", unary_op close_output_port;
 
-      "apply", binary_op apply;
+      "apply", apply;
     ]
 ;;
