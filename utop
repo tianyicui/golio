@@ -1,7 +1,5 @@
 #!/bin/sh
 
 set -e
-
-make build
-
-exec utop libgolio.cma -I _build/lib
+ocamlbuild libgolio.d.cma
+exec utop libgolio.d.cma -I _build

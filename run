@@ -1,6 +1,0 @@
-#!/bin/bash
-set -e
-
-make build
-
-OCAMLRUNPARAM=b ledit ocamlrun _build/golio/golio.byte "$@"
