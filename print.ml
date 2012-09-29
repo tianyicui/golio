@@ -13,6 +13,12 @@ let rec print_sexp sexp =
     | Bool false -> sprintf "#f"
     | List [Sexp (Symbol "quote"); p] ->
         "'" ^ print_value p
+    | List [Sexp (Symbol "quasiquote"); p] ->
+        "`" ^ print_value p
+    | List [Sexp (Symbol "unquote"); p] ->
+        "," ^ print_value p
+    | List [Sexp (Symbol "unquote-splicing"); p] ->
+        ",@" ^ print_value p
     | List lst ->
         "(" ^ S.concat " " (L.map print_value lst) ^ ")"
     | DottedList (lst, cdr) ->

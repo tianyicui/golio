@@ -154,6 +154,85 @@ let let_star env params =
     | _ -> invalid_arg "let*: invalid binding list"
 ;;
 
+let rec quasiquote level env params =
+  let qq_list lst =
+    let rec flatten (lists : value list) =
+      let append l r =
+        match l with
+          | Sexp (List xs) ->
+              (match r with
+                 | Sexp (List ys) -> List (xs @ ys)
+                 | Sexp (DottedList (ys, last)) ->
+                     DottedList ((xs @ ys), last)
+                 | y ->
+                     DottedList (xs, y)
+              )
+          | _ -> invalid_arg "append: first argument should be a list"
+      in
+        match lists with
+          | [] -> List []
+          | [x] -> unpack_sexp x
+          | l :: r -> append l (Sexp (flatten r))
+    in
+      Sexp (flatten (
+        L.map
+          (fun x ->
+             match x with
+               | List (Sexp (Symbol "unquote-splicing") :: body) ->
+                   let _, rst =
+                     unquote
+                       ~splicing:true
+                       (level - 1)
+                       env
+                       (L.map unpack_sexp body)
+                   in
+                     if level = 1 then
+                       rst
+                     else
+                       list_ [rst]
+               | _ ->
+                   list_ [snd (quasiquote level env [x])]
+          )
+          lst
+      ))
+  in
+    match params with
+      | [List args] ->
+          let sexp_list = L.map unpack_sexp args in
+            (match sexp_list with
+               | Symbol "quasiquote" :: body ->
+                   let env', rst =
+                     quasiquote (level + 1) env body
+                   in
+                     env', list_ [symbol "quasiquote"; rst]
+               | Symbol "unquote" :: body ->
+                   unquote (level - 1) env body
+               | _ ->
+                   env, qq_list sexp_list
+            )
+      | [DottedList (args, last)] ->
+          let arg_rst =
+            unpack_list (qq_list (L.map unpack_sexp args))
+          in
+          let last_rst =
+            snd (quasiquote level env [unpack_sexp last])
+          in
+            env, dotted_list arg_rst last_rst
+      | [arg] -> env, Sexp arg
+        | _ -> invalid_arg "quasiquote: should have exactly 1 argument"
+and unquote ?(splicing=false) level env params =
+  if level != 0 then
+    (let env', rst = quasiquote level env params in
+     let name = if splicing then "unquote-splicing" else "unquote"
+     in
+       env', list_ [symbol name; rst])
+  else
+    match params with
+      | [arg] ->
+          Eval.eval env arg
+      | _ -> invalid_arg "unquote: should have exactly 1 argument"
+;;
+
 let lambda env params =
   env, user_func (build_func env params)
 ;;
@@ -191,6 +270,7 @@ let prim_macros =
     "let", let_;
     "letrec", letrec;
     "let*", let_star;
+    "quasiquote", quasiquote 1;
     "lambda", lambda;
     "load", load;
   ]

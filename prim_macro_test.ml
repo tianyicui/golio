@@ -62,6 +62,22 @@ let _ =
   test "(let* ((x 2) (y 3)) (let* ((x 7) (z (+ x y))) (* z x)))" "70";
   test "(begin (define a 5) (let* ((a 10) (b a)) (- a b)))" "0";
 
+  test "`(+ 2 3)" "(+ 2 3)";
+  test "`(+ 2 ,(* 3 4))" "(+ 2 12)";
+  test "`(a b (,(+ 2 3) c) d)" "(a b (5 c) d)";
+  test "`(a b ,(reverse '(c d e)) f g)" "(a b (e d c) f g)";
+  test "(let ((a 1) (b 2)) `(,a . ,b))" "(1 . 2)";
+  test "'`,(cons 'a 'b)" "`,(cons 'a 'b)";
+  test "`',(cons 'a 'b)" "'(a . b)";
+  test "`,(let () (define x 1) x)" "1";
+  test "``(+ ,,(+ 1 2) 2 3)" "`(+ ,3 2 3)";
+  test "`(+ ,@(cdr '(* 2 3)))" "(+ 2 3)";
+  test "`(a b ,@(reverse '(c d e)) f g)" "(a b e d c f g)";
+  test "`(1 2 `(3 4 ,@(5 6 ,@(list 8) 9 10) 11 12) 13 14)" "(1 2 `(3 4 ,@(5 6 8 9 10) 11 12) 13 14)";
+  test "(let ((a 1) (b 2)) `(,a ,@b))" "(1 . 2)";
+  test "'`,(cons 'a 'b)" "`,(cons 'a 'b)";
+  test "`',(cons 'a 'b)" "'(a . b)";
+
   test "(lambda x 1 2 3)" "(lambda x 1 2 3)";
   test "(lambda (x) 1 2 3)" "(lambda (x) 1 2 3)";
   test "(lambda (x y) 1 2 3)" "(lambda (x y) 1 2 3)";
