@@ -1,12 +1,14 @@
 module M = Map.Make(String)
 module L = List
 module H = Hashtbl
+module Q = Queue
 
 type value =
   | Sexp of sexp
   | Func of func
   | Macro of macro
   | Port of port
+  | Chan of chan
   | EofObject
   | Undefined
   | Thunk of user_func * value list
@@ -29,6 +31,11 @@ and macro =
 and port =
   | InputPort of string * Lexing.lexbuf * in_channel
   | OutputPort of string * out_channel
+
+and chan = {
+  id: int;
+  channel: value Event.channel;
+}
 
 and env = {
   top_level : bool;
@@ -123,4 +130,9 @@ let unpack_output_port value =
   match value with
     | Port (OutputPort (_, channel)) -> channel
     | _ -> invalid_arg "unpack_output_port: expected an output port"
+;;
+let unpack_chan value =
+  match value with
+    | Chan chan -> chan
+    | _ -> invalid_arg "unpack_chan: expectd a chan"
 ;;

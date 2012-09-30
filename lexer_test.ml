@@ -19,4 +19,4 @@ let _ =
     test "`a ,-1 ,@()"
       [QUASIQUOTE ; SYMBOL "a"; UNQUOTE; NUMBER (-1); UNQUOTE_SPLICING; LPAREN; RPAREN; EOF];
 
-    Printf.printf "All passed!\n"
+    prerr_string "All passed!\n"

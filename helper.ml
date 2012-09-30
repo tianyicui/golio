@@ -3,7 +3,6 @@ let temp_file () =
 ;;
 
 let run_str str =
-  Env.clear_globals ();
   let temp_in = temp_file () in
   let str_c = open_out temp_in in
     output_string str_c str;

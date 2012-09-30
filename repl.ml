@@ -8,6 +8,7 @@ type repl_config = {
 ;;
 
 let repl conf =
+  Runtime.init ();
   let in_c = conf.stdin in
   let out_c = conf.stdout in
   let lb =
@@ -31,5 +32,7 @@ let repl conf =
                         fprintf out_c "%s\n" (Print.print_value rst)
                 end;
                 go env';
-    in go (Prim_env.prim_env ())
+    in
+      go (Prim_env.prim_env ());
+      Runtime.finish ()
 ;;

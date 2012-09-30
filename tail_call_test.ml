@@ -33,6 +33,4 @@ let _ =
   test "(define (f x) (if (= x 0) 0 (begin (define y (- x 1)) (f y)))) (f 1024)" "0";
   (* TODO do *)
 
-  Printf.printf "All passed!\n";
-
-;;
+  prerr_string "All passed!\n"

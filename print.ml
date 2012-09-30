@@ -57,14 +57,17 @@ and print_port port =
     | OutputPort (name, _) ->
         sprintf "#<outputport:%s>" name
 
+and print_chan chan =
+  string_of_int chan.id
+
 and print_value value =
   match value with
     | Sexp sexp -> print_sexp sexp
     | Func func -> print_func func
     | Macro macro -> print_macro macro
     | Port port -> print_port port
-    | EofObject ->
-        "#<eof>"
+    | Chan chan -> print_chan chan
+    | EofObject -> "#<eof>"
     | Undefined ->
         failwith "print_value: should not print Undefined"
     | Thunk _ ->

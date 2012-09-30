@@ -130,4 +130,4 @@ let _ =
   test "(apply min '(6 8 3 2 5))" "2";
   test "(apply min 5 1 3 '(6 8 3 2 5))" "1";
 
-  Printf.printf "All passed!\n"
+  prerr_string "All passed!\n"

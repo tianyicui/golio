@@ -118,5 +118,4 @@ let _ =
       test (Printf.sprintf "(load %S) x y" temp_file) "loaded\nok";
   end;
 
-
-  Printf.printf "All passed!\n"
+  prerr_string "All passed!\n"

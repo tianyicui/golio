@@ -1,0 +1,2 @@
+<**/*.ml> : thread
+<**/*.{byte,native}> : use_unix, thread

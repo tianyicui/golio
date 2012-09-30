@@ -1,11 +1,13 @@
 * current
     * continuous refactor
-    * refactor quasiquote
-    * add `golio_test.ml`...
-
-* GOROUTINES AND CHANNELS!
+    * GOROUTINES AND CHANNELS!
+        * more and more tests
+        * channel with buffer
 
 * later
+    * add `golio_test.ml`...
+    * refactor quasiquote
+    * A global symbol table (using Weak)
     * better exception
     * user-defined macro
     * more complete and compliant stdlib and tests

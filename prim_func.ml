@@ -170,6 +170,7 @@ let write params =
             )
         in
           output_string out_c (Print.print_value obj);
+          flush out_c;
           Undefined
 ;;
 let open_input_file file =
@@ -208,6 +209,28 @@ let apply params =
             | UserFunc func ->
                 Thunk (func, arg))
     | _ -> invalid_arg "apply: not applicable"
+;;
+
+let sleep value =
+  let time_in_ms =
+    (float_of_int (unpack_num value)) /. 1000.0
+  in
+    Thread.delay time_in_ms;
+    Undefined
+;;
+
+let make_chan params =
+  match params with
+    | [] ->
+        Chan (Chan.create ())
+    | _ -> invalid_arg "make_chan: should have 0 arguments"
+;;
+let receive chan =
+  Chan.receive (unpack_chan chan)
+;;
+let send chan value =
+  Chan.send (unpack_chan chan) value;
+  Undefined
 ;;
 
 let prim_functions =
@@ -266,5 +289,10 @@ let prim_functions =
       "close-output-port", unary_op close_output_port;
 
       "apply", apply;
+
+      "sleep", unary_op sleep;
+      "make-chan", make_chan;
+      "receive", unary_op receive;
+      "send", binary_op send;
     ]
 ;;

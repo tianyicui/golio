@@ -77,4 +77,4 @@ let _ =
         list_ [symbol "c"; string_ "d"]]
   ;
 
-  Printf.printf "All passed!\n"
+  prerr_string "All passed!\n"

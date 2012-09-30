@@ -264,6 +264,18 @@ let load env params =
     | _ -> invalid_arg "load: should have one single argument"
 ;;
 
+let go env param =
+  let eval =
+     Eval.eval env
+  in
+  L.iter
+    (fun sexp ->
+       let thread = Thread.create eval sexp in
+         Runtime.register_thread thread)
+    param;
+  env, Undefined
+;;
+
 let prim_macros =
   [
     "quote", quote;
@@ -277,5 +289,6 @@ let prim_macros =
     "quasiquote", quasiquote 1;
     "lambda", lambda;
     "load", load;
+    "go", go;
   ]
 ;;
