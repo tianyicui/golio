@@ -1,7 +1,5 @@
 open Type
 
-module L = Type.L
-
 let quote env param =
   env, (Prim_func.unary_op (fun x -> Sexp x) param)
 ;;

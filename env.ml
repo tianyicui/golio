@@ -1,9 +1,5 @@
 open Type
 
-module L = Type.L
-module M = Type.M
-module H = Type.H
-
 let globals =
   H.create 1
 ;;

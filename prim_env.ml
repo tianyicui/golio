@@ -1,7 +1,5 @@
 open Type
 
-module L = Type.L
-
 let prim_env () =
   let map_and_bind f lst =
     Env.bind_globals (L.map (fun (k, v) -> (k, f k v)) lst)

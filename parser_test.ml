@@ -1,7 +1,5 @@
 open Type
 
-module L = Type.L
-
 let _ =
   let parse_str str =
     let lb = Lexing.from_string str in

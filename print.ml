@@ -1,8 +1,8 @@
 open Type
-open Printf
 
-module S = String
-module L = Type.L
+let sprintf =
+  Printf.sprintf
+;;
 
 let rec print_sexp sexp =
   match sexp with
@@ -58,7 +58,7 @@ and print_port port =
         sprintf "#<outputport:%s>" name
 
 and print_chan chan =
-  string_of_int chan.id
+  sprintf "#<chan:%i>" chan.id
 
 and print_value value =
   match value with

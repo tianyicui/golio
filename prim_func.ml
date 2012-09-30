@@ -1,7 +1,5 @@
 open Type
 
-module L = Type.L
-
 let binary_op op params =
   match params with
     | [x; y] -> op x y

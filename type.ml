@@ -2,6 +2,7 @@ module M = Map.Make(String)
 module L = List
 module H = Hashtbl
 module Q = Queue
+module S = String
 
 type value =
   | Sexp of sexp

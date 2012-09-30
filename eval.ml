@@ -1,7 +1,5 @@
 open Type
 
-module L = Type.L
-
 let rec expand_thunk value =
   match value with
     | Thunk (func, args) ->
