@@ -2,7 +2,7 @@
     * continuous refactor
     * GOROUTINES AND CHANNELS!
         * more and more tests
-        * dead lock detection
+        * `Dead_lock` exn should be raised at the main thread
 
 * later
     * add `golio_test.ml`...

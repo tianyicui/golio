@@ -4,6 +4,9 @@ module H = Hashtbl
 module Q = Queue
 module S = String
 
+exception Dead_lock
+;;
+
 type value =
   | Sexp of sexp
   | Func of func
@@ -39,6 +42,11 @@ and chan = {
   capacity: int;
   buffer: value Q.t;
   buffer_mutex: Mutex.t;
+  (* When clients_count > 0, its value represents the number of senders
+   * blocking on this channel, when clitns_count < 0, its negation represents
+   * the number of receivers blocking on this channel. *)
+  mutable clients_count: int;
+  clients_count_mutex: Mutex.t;
 }
 
 and env = {

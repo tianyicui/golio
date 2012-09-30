@@ -1,6 +1,13 @@
+open Type
+
 let _ =
   let test str rst =
     assert (Helper.run_str str = rst)
+  in
+
+  let test_exn str expected =
+    try (ignore (Helper.run_str str); assert false)
+    with catched -> assert (catched = expected)
   in
 
   let test_time str time rst =
@@ -47,5 +54,8 @@ let _ =
         (write (receive ch))
         (write (receive ch))
         (write (receive ch))" "123";
+
+  test_exn "(define ch (make-chan)) (send ch 1)" Dead_lock;
+  test_exn "(define ch (make-chan)) (receive ch)" Dead_lock;
 
   prerr_string "All passed!\n"

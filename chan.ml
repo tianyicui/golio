@@ -1,30 +1,13 @@
 open Type
 
-let id_count =
-  ref 0
-;;
-let id_cnt_mutex =
-  Mutex.create ()
-;;
-let reset_count () =
-  Mutex.lock id_cnt_mutex;
-  id_count := 0;
-  Mutex.unlock id_cnt_mutex
-;;
-let new_id () =
-  Mutex.lock id_cnt_mutex;
-  let id = !id_count in
-    id_count := id + 1;
-    Mutex.unlock id_cnt_mutex;
-    id
-;;
-
 let create capacity = {
-  id = new_id ();
+  id = Runtime.new_chan_id ();
   channel = Event.new_channel ();
   capacity = capacity;
   buffer = Q.create ();
   buffer_mutex = Mutex.create ();
+  clients_count = 0;
+  clients_count_mutex = Mutex.create ();
 }
 ;;
 let lock_buffer chan =
@@ -33,6 +16,27 @@ let lock_buffer chan =
 let unlock_buffer chan =
   Mutex.unlock chan.buffer_mutex;
 ;;
+let lock_clients_count chan =
+  Mutex.lock chan.clients_count_mutex;
+;;
+let unlock_clients_count chan =
+  Mutex.unlock chan.clients_count_mutex;
+;;
+let maintain_clients_count chan delta event =
+  lock_clients_count chan;
+  let will_block = (delta * chan.clients_count >= 0) in
+    (if will_block then
+       (chan.clients_count <- chan.clients_count + delta;
+        Runtime.thread_blocked (Thread.self ())));
+    unlock_clients_count chan;
+    let rst = Event.sync event in
+      (if will_block then
+         (Runtime.thread_unblocked (Thread.self ());
+          lock_clients_count chan;
+          chan.clients_count <- chan.clients_count - delta;
+          unlock_clients_count chan));
+      rst
+;;
 let send chan value =
   lock_buffer chan;
   if Q.length chan.buffer < chan.capacity then
@@ -40,7 +44,8 @@ let send chan value =
      unlock_buffer chan)
   else
     (unlock_buffer chan;
-     Event.sync (Event.send chan.channel value))
+     maintain_clients_count chan 1
+       (Event.send chan.channel value))
 ;;
 let receive chan =
   lock_buffer chan;
@@ -50,5 +55,6 @@ let receive chan =
        rst)
   else
     (unlock_buffer chan;
-     Event.sync (Event.receive chan.channel))
+     maintain_clients_count chan (-1)
+       (Event.receive chan.channel))
 ;;
