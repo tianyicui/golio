@@ -74,9 +74,9 @@ let define env params =
       | [Symbol var; expr] ->
           var, Eval.eval env expr
       | List [] :: _ -> invalid_arg "define: empty definition list"
-      | (List (Sexp (Symbol var) :: _) as def) :: body
-      | (DottedList ((Sexp (Symbol var) :: _), _) as def) :: body ->
-          var, (env, named_lambda var (pair_cdr def :: body))
+      | (List (Sexp (Symbol var) :: _) as definition) :: body
+      | (DottedList ((Sexp (Symbol var) :: _), _) as definition) :: body ->
+          var, (env, named_lambda var (pair_cdr definition :: body))
       | _ -> invalid_arg "define: invalid arguments"
   in
     (if env'.top_level then
