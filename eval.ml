@@ -32,7 +32,7 @@ and apply func args =
                                string_of_int args_len)
     )
   in
-    snd (eval_all env func.body)
+    snd (eval_all {env with top_level = false} func.body)
 
 and map env sexp_list =
   let env, rst_lst =

@@ -79,7 +79,11 @@ let define env params =
           var, (env, named_lambda var (pair_cdr def :: body))
       | _ -> invalid_arg "define: invalid arguments"
   in
-    (*TODO global *) Env.def_local var value env', Undefined
+    (if env'.top_level then
+       (Env.def_global var value; env')
+     else
+       Env.def_local var value env'
+    ), Undefined
 ;;
 
 let set env params =
@@ -104,27 +108,27 @@ let let_to_apply is_rec env params =
       vars
   in
   let name = if is_rec then "letrec" else "let" in
-  match params with
-    | [] -> invalid_arg (name ^ ": should have a binding list")
-    | List bindings :: body ->
-        let vars, inits = L.split (
-          L.map
-            (fun binding ->
-               match unpack_sexp binding with
-                 | List [Sexp (Symbol var); Sexp init] -> var, init
-                 | _ -> invalid_arg (name ^ ": invalid binding list"))
-            bindings
-        ) in
-        let env', values =
-          Eval.map (if is_rec then def_vars vars env else env) inits
-        in
-        begin
-        if is_rec then
-          L.iter2 (fun var value -> Env.set_var var value env') vars values;
-        let func = {params = vars; vararg = None; body = body; closure = env'} in
-            env, Prim_func.apply [user_func func; list_ values]
-        end
-    | _ -> invalid_arg (name ^ ": invalid binding list")
+    match params with
+      | [] -> invalid_arg (name ^ ": should have a binding list")
+      | List bindings :: body ->
+          let vars, inits = L.split (
+            L.map
+              (fun binding ->
+                 match unpack_sexp binding with
+                   | List [Sexp (Symbol var); Sexp init] -> var, init
+                   | _ -> invalid_arg (name ^ ": invalid binding list"))
+              bindings
+          ) in
+          let env', values =
+            Eval.map (if is_rec then def_vars vars env else env) inits
+          in
+            begin
+              if is_rec then
+                L.iter2 (fun var value -> Env.set_var var value env') vars values;
+              let func = {params = vars; vararg = None; body = body; closure = env'} in
+                env, Prim_func.apply [user_func func; list_ values]
+            end
+      | _ -> invalid_arg (name ^ ": invalid binding list")
 ;;
 
 let let_ =
@@ -147,7 +151,7 @@ let let_star env params =
                      fst (define e (L.map unpack_sexp l))
                  | _ -> invalid_arg "let*: invalid binding list"
             )
-            env
+            { env with top_level = false }
             bindings
         in
           env, snd (begin_ env' body)

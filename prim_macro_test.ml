@@ -1,15 +1,16 @@
 let _ =
   let test str rst =
-    assert (Helper.repl_str str = rst)
+    assert (Helper.run_str str = rst)
   in
 
   let test_exn str expected =
-    try (ignore (Helper.repl_str str); assert false)
+    try (ignore (Helper.run_str str); assert false)
     with catched -> assert (catched = expected)
   in
 
   test "(begin 1 2 3)" "3";
   test "(define x 1) (begin (set! x 2) x)" "2";
+  test "(begin (define x 1)) x" "1";
 
   test "(if 1 2 invalid)" "2";
   test "(if #f invalid 'ok)" "ok";
@@ -32,6 +33,8 @@ let _ =
   test "(define first car) (first '(1 2))" "1";
   test "(define (add . l) (apply + l)) (add -2 -1 0 1 2)" "0";
   test "(define (x y . z) (cons y z)) (x 1 2 3)" "(1 2 3)";
+  test "(define (f x) (+ x y)) (define y 1) (f 1)" "2";
+  test "(define plus (lambda (x) (+ x y))) (define y 1) (plus 3)" "4";
 
   test "(define x -2) x (set! x (* x x)) x" "-2\n4";
   test_exn "(set! x 1)" (Failure "set_var: cannot set undefined variable x");
@@ -39,10 +42,14 @@ let _ =
 
   test "(let ((x 2) (y 3)) (* x y))" "6";
   test "(let ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))" "35";
+  test_exn "(let () (define x 1) x) x"
+    (Failure "get_var: cannot get undefined variable x");
   test "(begin (define a 5) (let ((a 10) (b a)) (- a b)))" "5";
 
   test "(letrec ((x 2) (y 3)) (* x y))" "6";
   test "(letrec ((x 2) (y 3)) (letrec ((x 7) (z (+ x y))) (* z x)))" "35";
+  test_exn "(letrec () (define x 1) x) x"
+    (Failure "get_var: cannot get undefined variable x");
   test "(define x 5) (letrec ((x 3) (y 5)) (+ x y)) x" "8\n5";
   test "(letrec ((even?
                   (lambda (n)
@@ -59,6 +66,8 @@ let _ =
 
   test "(let* ((x 2) (y 3)) (* x y))" "6";
   test "(let* ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))" "35";
+  test_exn "(let* () (define x 1) x) x"
+    (Failure "get_var: cannot get undefined variable x");
   test "(let* ((x 2) (y 3)) (let* ((x 7) (z (+ x y))) (* z x)))" "70";
   test "(begin (define a 5) (let* ((a 10) (b a)) (- a b)))" "0";
 

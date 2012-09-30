@@ -1,6 +1,6 @@
 let _ =
   let test str rst =
-    assert (Helper.repl_str str = rst)
+    assert (Helper.run_str str = rst)
   in
 
   test "\"abc\"" "\"abc\"";

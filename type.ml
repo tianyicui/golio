@@ -30,8 +30,10 @@ and port =
   | InputPort of string * Lexing.lexbuf * in_channel
   | OutputPort of string * out_channel
 
-and env =
-  value ref M.t
+and env = {
+  top_level : bool;
+  locals: value ref M.t;
+}
 
 and user_func = {
   params : string list;

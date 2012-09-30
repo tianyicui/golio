@@ -9,15 +9,15 @@ let globals : (M.key, value ref) H.t =
 ;;
 
 let empty =
-  M.empty
+  {top_level = true; locals = M.empty}
 ;;
 
 let is_bound var env =
-  M.mem var env || H.mem globals var
+  M.mem var env.locals || H.mem globals var
 ;;
 
 let get_ref var env =
-  try M.find var env with
+  try M.find var env.locals with
     | Not_found -> H.find globals var
 ;;
 
@@ -28,7 +28,7 @@ let get_var var env =
 ;;
 
 let def_local var value env =
-  M.add var (ref value) env
+  { env with locals = M.add var (ref value) env.locals}
 ;;
 
 let def_global var value =
@@ -52,4 +52,8 @@ let bind_globals var_assoc =
   L.iter
     (fun (k, v) -> def_global k v)
     var_assoc
+;;
+
+let clear_globals () =
+  H.clear globals
 ;;

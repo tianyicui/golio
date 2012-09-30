@@ -1,7 +1,7 @@
 let _ =
 
   let test_exn str expected =
-    try (ignore (Helper.repl_str str); assert false)
+    try (ignore (Helper.run_str str); assert false)
     with catched -> assert (catched = expected)
   in
 
@@ -9,7 +9,7 @@ let _ =
     Runtime_conf.enable_tco := false;
     test_exn str Stack_overflow;
     Runtime_conf.enable_tco := true;
-    assert (Helper.repl_str str = rst)
+    assert (Helper.run_str str = rst)
   in
 
   test "(define (f x) (if (= x 0) 0 (f (- x 1)))) (f 1024)" "0";
