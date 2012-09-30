@@ -1,6 +1,5 @@
 * current
     * continuous refactor
-    * user-defined macro
     * refactor quasiquote
     * add `golio_test.ml`...
 
@@ -8,9 +7,11 @@
 
 * later
     * better exception
-    * OASIS
-    * `eval`
-    * `delay` and `force`
-    * `call-with-current-continuation` and `dynaic-wind`?
-    * vector
+    * user-defined macro
     * more complete and compliant stdlib and tests
+        * more I/O functions
+        * `eval`
+        * `delay` and `force`
+        * vector
+    * OASIS
+    * `call-with-current-continuation` and `dynaic-wind`?
