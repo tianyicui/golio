@@ -2,7 +2,7 @@ open Type
 open Printf
 
 module S = String
-module L = List
+module L = Type.L
 
 let rec print_sexp sexp =
   match sexp with

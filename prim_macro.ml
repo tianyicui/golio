@@ -1,6 +1,6 @@
 open Type
 
-module L = List
+module L = Type.L
 
 let quote env param =
   env, (Prim_func.unary_op (fun x -> Sexp x) param)
@@ -64,7 +64,7 @@ let define env params =
     let func = build_func env params in
     let func' = {
       func with
-          closure = Env.def_var var Undefined func.closure
+          closure = Env.def_local var Undefined func.closure
     } in
     let rst = user_func func' in
       (Env.set_var var rst func'.closure; rst)
@@ -79,7 +79,7 @@ let define env params =
           var, (env, named_lambda var (pair_cdr def :: body))
       | _ -> invalid_arg "define: invalid arguments"
   in
-    Env.def_var var value env', Undefined
+    (*TODO global *) Env.def_local var value env', Undefined
 ;;
 
 let set env params =
@@ -97,8 +97,8 @@ let let_to_apply is_rec env params =
     L.fold_left
       (fun e v ->
          if (Env.is_bound v e)
-         then Env.def_var v (Env.get_var v e) e
-         else Env.def_var v Undefined e
+         then Env.def_local v (Env.get_var v e) e
+         else Env.def_local v Undefined e
       )
       env
       vars

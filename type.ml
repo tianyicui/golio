@@ -1,4 +1,6 @@
 module M = Map.Make(String)
+module L = List
+module H = Hashtbl
 
 type value =
   | Sexp of sexp
@@ -29,7 +31,7 @@ and port =
   | OutputPort of string * out_channel
 
 and env =
-    value ref M.t
+  value ref M.t
 
 and user_func = {
   params : string list;

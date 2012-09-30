@@ -1,7 +1,6 @@
 open Type
 
-module L = List
-module M = Map.Make(String)
+module L = Type.L
 
 let rec expand_thunk value =
   match value with
@@ -16,7 +15,7 @@ and apply func args =
     (match func.vararg with
        | None ->
            if params_len == args_len then
-             Env.bind_vars func.closure (List.combine func.params args)
+             Env.bind_locals func.closure (List.combine func.params args)
            else invalid_arg ("apply: invalid number of args, expected " ^
                              string_of_int params_len ^ ", given " ^
                              string_of_int args_len)
@@ -24,8 +23,8 @@ and apply func args =
            if params_len <= args_len then
              let rec go params args =
                begin match params with
-                 | [] -> Env.def_var vararg (list_ args) func.closure
-                 | x :: xs -> Env.def_var x (L.hd args) (go xs (L.tl args))
+                 | [] -> Env.def_local vararg (list_ args) func.closure
+                 | x :: xs -> Env.def_local x (L.hd args) (go xs (L.tl args))
                end
              in go func.params args
              else invalid_arg ("apply: invalid number of args, expected " ^

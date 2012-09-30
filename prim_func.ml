@@ -1,6 +1,6 @@
 open Type
 
-module L = List
+module L = Type.L
 
 let binary_op op params =
   match params with

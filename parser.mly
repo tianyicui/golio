@@ -1,7 +1,7 @@
 %{
 open Type
 
-module L = List
+module L = Type.L
 %}
 
 %token LPAREN RPAREN QUOTE DOT QUASIQUOTE UNQUOTE UNQUOTE_SPLICING EOF

@@ -1,6 +1,6 @@
 open Type
 
-module L = List
+module L = Type.L
 
 let _ =
   let parse_str str =
