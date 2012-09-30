@@ -1,9 +1,12 @@
 open Type
 
+let enable_tco =
+  ref true
+;;
+
 let thread_queue =
   Q.create ()
 ;;
-
 let tq_mutex =
   Mutex.create ()
 ;;
@@ -19,9 +22,9 @@ let init () =
   Q.clear thread_queue;
   Mutex.unlock tq_mutex;
 
+  Chan.reset_count ();
   Env.clear_globals ()
 ;;
-
 let finish () =
   Mutex.lock tq_mutex;
   (try

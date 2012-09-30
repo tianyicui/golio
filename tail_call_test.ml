@@ -6,9 +6,9 @@ let _ =
   in
 
   let test str rst =
-    Runtime_conf.enable_tco := false;
+    Runtime.enable_tco := false;
     test_exn str Stack_overflow;
-    Runtime_conf.enable_tco := true;
+    Runtime.enable_tco := true;
     assert (Helper.run_str str = rst)
   in
 

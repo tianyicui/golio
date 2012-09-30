@@ -9,8 +9,9 @@ Prim_func
 Prim_macro
 Prim_env
 Port
+Chan
 
-Runtime_conf
+Runtime
 Eval
 Repl
 

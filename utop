@@ -2,4 +2,4 @@
 
 set -e
 ocamlbuild libgolio.d.cma
-exec utop libgolio.d.cma -I _build
+exec utop -init /dev/null libgolio.d.cma -I _build

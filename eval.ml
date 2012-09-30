@@ -71,6 +71,6 @@ and eval ?(tail=false) env sexp =
       | DottedList _ -> invalid_arg "eval: cannot eval dotted list"
       | sexp -> env, Sexp sexp
   in
-    if tail && !Runtime_conf.enable_tco
+    if tail && !Runtime.enable_tco
     then rst else fst rst, expand_thunk (snd rst)
 ;;

@@ -3,6 +3,7 @@
     * GOROUTINES AND CHANNELS!
         * more and more tests
         * channel with buffer
+        * dead lock detection
 
 * later
     * add `golio_test.ml`...
