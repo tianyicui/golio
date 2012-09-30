@@ -220,10 +220,13 @@ let sleep value =
 ;;
 
 let make_chan params =
-  match params with
-    | [] ->
-        Chan (Chan.create ())
-    | _ -> invalid_arg "make_chan: should have 0 arguments"
+  let cap =
+    match params with
+      | [] -> 0
+      | [Sexp (Number cap)] -> cap
+      | _ -> invalid_arg "make_chan: should have 0 arguments"
+  in
+    Chan (Chan.create cap)
 ;;
 let receive chan =
   Chan.receive (unpack_chan chan)

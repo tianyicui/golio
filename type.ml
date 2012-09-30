@@ -35,6 +35,9 @@ and port =
 and chan = {
   id: int;
   channel: value Event.channel;
+  capacity: int;
+  buffer: value Q.t;
+  buffer_mutex: Mutex.t;
 }
 
 and env = {

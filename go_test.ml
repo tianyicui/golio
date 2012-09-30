@@ -41,4 +41,11 @@ let _ =
     0.2
     "42";
 
+  test "(define ch (make-chan 1)) (send ch 42) (write (receive ch))" "42";
+  test "(define ch (make-chan 3))
+        (send ch 1) (send ch 2) (send ch 3)
+        (write (receive ch))
+        (write (receive ch))
+        (write (receive ch))" "123";
+
   prerr_string "All passed!\n"
