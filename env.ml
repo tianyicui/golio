@@ -4,7 +4,7 @@ module L = Type.L
 module M = Type.M
 module H = Type.H
 
-let globals : (M.key, value ref) H.t =
+let globals =
   H.create 1
 ;;
 

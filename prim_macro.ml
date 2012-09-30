@@ -160,7 +160,7 @@ let let_star env params =
 
 let rec quasiquote level env params =
   let qq_list lst =
-    let rec flatten (lists : value list) =
+    let rec flatten lists =
       let append l r =
         match l with
           | Sexp (List xs) ->
