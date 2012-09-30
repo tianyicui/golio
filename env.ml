@@ -8,6 +8,10 @@ let globals =
   H.create 1
 ;;
 
+let glb_mutex =
+  Mutex.create ()
+;;
+
 let empty =
   {top_level = true; locals = M.empty}
 ;;
@@ -32,7 +36,9 @@ let def_local var value env =
 ;;
 
 let def_global var value =
-  H.add globals var (ref value)
+  Mutex.lock glb_mutex;
+  H.add globals var (ref value);
+  Mutex.unlock glb_mutex
 ;;
 
 let set_var var value env =
@@ -55,5 +61,7 @@ let bind_globals var_assoc =
 ;;
 
 let clear_globals () =
-  H.clear globals
+  Mutex.lock glb_mutex;
+  H.clear globals;
+  Mutex.unlock glb_mutex
 ;;

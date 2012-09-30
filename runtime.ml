@@ -4,16 +4,26 @@ let thread_queue =
   Q.create ()
 ;;
 
+let tq_mutex =
+  Mutex.create ()
+;;
+
 let register_thread thread =
-  Q.push thread thread_queue
+  Mutex.lock tq_mutex;
+  Q.push thread thread_queue;
+  Mutex.unlock tq_mutex
 ;;
 
 let init () =
-  Env.clear_globals ();
-  Q.clear thread_queue
+  Mutex.lock tq_mutex;
+  Q.clear thread_queue;
+  Mutex.unlock tq_mutex;
+
+  Env.clear_globals ()
 ;;
 
 let finish () =
+  Mutex.lock tq_mutex;
   (try
     while true do
       let thread = Q.pop thread_queue in
@@ -21,4 +31,5 @@ let finish () =
     done
   with
     | Q.Empty -> ());
+  Mutex.unlock tq_mutex
 ;;
