@@ -3,12 +3,12 @@ open Type
 let binary_op op params =
   match params with
     | [x; y] -> op x y
-    | _ -> invalid_arg "binary_op: expected exactly 2 arguments"
+    | _ -> arg_count_mismatch "2" (L.length params)
 ;;
 let num_binop op params =
   match (L.map unpack_num params) with
     | hd :: tl -> number (L.fold_left op hd tl)
-    | _ -> invalid_arg "num_binop: expected at least 1 argument"
+    | _ -> arg_count_mismatch "1+" (L.length params)
 ;;
 let bool_any_binop op args =
   bool_ (binary_op op args)
@@ -28,13 +28,12 @@ let str_bool_binop =
 let unary_op op params =
   match params with
     | [x] -> op x
-    | xs -> invalid_arg (Printf.sprintf "unary_op: expected 1 argument, given %i"
-                           (L.length xs))
+    | _ -> arg_count_mismatch "1" (L.length params)
 ;;
 let str_unary_op op params =
   match params with
     | [x] -> op (unpack_str x)
-    | _ -> invalid_arg "str_unary_op: expected 1 argument"
+    | _ -> arg_count_mismatch "1" (L.length params)
 ;;
 
 let is_symbol arg =
@@ -149,7 +148,7 @@ let read params =
       (match params with
          | [] -> !Port.stdin
          | [port] -> port
-         | _ -> invalid_arg "read: expected 0 or 1 arguments")
+         | _ -> arg_count_mismatch "0 or 1" (L.length params))
   in
     match Parser.parse Lexer.tokens lb with
       | Some value -> Sexp value
@@ -157,14 +156,14 @@ let read params =
 ;;
 let write params =
   match params with
-    | [] -> invalid_arg "write: expected 1 or 2 arguments"
+    | [] -> arg_count_mismatch "1 or 2" 0
     | obj :: remaining ->
         let out_c =
           unpack_output_port
             (match remaining with
                | [] -> !Port.stdout
                | [port] -> port
-               | _ -> invalid_arg "write: expected 1 or 2 arguments"
+               | _ -> arg_count_mismatch "1 or 2" (L.length params)
             )
         in
           output_string out_c (Print.print_value obj);
@@ -191,7 +190,7 @@ let apply params =
   match params with
     | []
     | [_] ->
-        invalid_arg "apply: should have 2 or more arguments"
+        arg_count_mismatch "2+" 1
     | (Func func) :: args ->
         let arg =
           (let rec go args =
@@ -221,8 +220,8 @@ let make_chan params =
   let cap =
     match params with
       | [] -> 0
-      | [Sexp (Number cap)] -> cap
-      | _ -> invalid_arg "make_chan: should have 0 arguments"
+      | [num] -> unpack_num num
+      | _ -> arg_count_mismatch "0 or 1" (L.length params)
   in
     Chan (Chan.create cap)
 ;;

@@ -1,15 +1,16 @@
 * current
     * continuous refactor
+    * better exception
     * GOROUTINES AND CHANNELS!
         * more and more tests
         * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?
-        * when a thread is permanently blocked, currently we cannot make it exit (perhaps wontfix)
+    * `+` and `*` can take 0 args
 
 * later
     * add `golio_test.ml`...
     * refactor quasiquote
     * A global symbol table (using Weak)
-    * better exception
+    * ocamldoc
     * user-defined macro
     * more complete and compliant stdlib and tests
         * more I/O functions

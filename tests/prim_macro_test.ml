@@ -1,3 +1,4 @@
+open Type
 open Test
 
 let _ =
@@ -16,8 +17,9 @@ let _ =
   test "(define y 2) ((lambda (x) (define y 1) (+ x y)) 3) y" "4\n2";
   test "(define x (begin (define y 2) 1)) x y" "1\n2";
   test_exn "((lambda (x) (define y 1) (+ x y)) 3) y"
-      (Failure "get_var: cannot get undefined variable y");
-  test_exn "(+ y 2)" (Failure "get_var: cannot get undefined variable y");
+    (Lisp_error (UnboundVar "y"));
+  test_exn "(+ y 2)"
+    (Lisp_error (UnboundVar "y"));
   test "(define x 0) (define z 1) (define (f x y) (set! z 2) (+ x y))
       (f 1 2) x z" "3\n0\n2";
   test "(define (factorial x) (if (= x 1) 1 (* x (factorial (- x 1)))))
@@ -30,19 +32,20 @@ let _ =
   test "(define plus (lambda (x) (+ x y))) (define y 1) (plus 3)" "4";
 
   test "(define x -2) x (set! x (* x x)) x" "-2\n4";
-  test_exn "(set! x 1)" (Failure "set_var: cannot set undefined variable x");
+  test_exn "(set! x 1)"
+    (Lisp_error (UnboundVar "x"));
   test "(define x 3) (define y 4) (let ((t x)) (set! x y) (set! y t)) x y" "4\n3";
 
   test "(let ((x 2) (y 3)) (* x y))" "6";
   test "(let ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))" "35";
   test_exn "(let () (define x 1) x) x"
-    (Failure "get_var: cannot get undefined variable x");
+    (Lisp_error (UnboundVar "x"));
   test "(begin (define a 5) (let ((a 10) (b a)) (- a b)))" "5";
 
   test "(letrec ((x 2) (y 3)) (* x y))" "6";
   test "(letrec ((x 2) (y 3)) (letrec ((x 7) (z (+ x y))) (* z x)))" "35";
   test_exn "(letrec () (define x 1) x) x"
-    (Failure "get_var: cannot get undefined variable x");
+    (Lisp_error (UnboundVar "x"));
   test "(define x 5) (letrec ((x 3) (y 5)) (+ x y)) x" "8\n5";
   test "(letrec ((even?
                   (lambda (n)
@@ -60,7 +63,7 @@ let _ =
   test "(let* ((x 2) (y 3)) (* x y))" "6";
   test "(let* ((x 2) (y 3)) (let ((x 7) (z (+ x y))) (* z x)))" "35";
   test_exn "(let* () (define x 1) x) x"
-    (Failure "get_var: cannot get undefined variable x");
+    (Lisp_error (UnboundVar "x"));
   test "(let* ((x 2) (y 3)) (let* ((x 7) (z (+ x y))) (* z x)))" "70";
   test "(begin (define a 5) (let* ((a 10) (b a)) (- a b)))" "0";
 

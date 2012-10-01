@@ -24,7 +24,7 @@ let get_ref var env =
 let get_var var env =
   try !(get_ref var env) with
     | Not_found ->
-        failwith ("get_var: cannot get undefined variable " ^ var)
+        unbound_var var
 ;;
 
 let def_local var value env =
@@ -40,7 +40,7 @@ let def_global var value =
 let set_var var value env =
   try get_ref var env := value with
     | Not_found ->
-        failwith ("set_var: cannot set undefined variable " ^ var)
+        unbound_var var
 ;;
 
 let bind_locals init_env var_assoc =

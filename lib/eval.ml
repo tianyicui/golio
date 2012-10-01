@@ -14,9 +14,8 @@ and apply func args =
        | None ->
            if params_len == args_len then
              Env.bind_locals func.closure (List.combine func.params args)
-           else invalid_arg ("apply: invalid number of args, expected " ^
-                             string_of_int params_len ^ ", given " ^
-                             string_of_int args_len)
+           else
+             arg_count_mismatch (string_of_int params_len) args_len
        | Some vararg ->
            if params_len <= args_len then
              let rec go params args =
@@ -25,9 +24,8 @@ and apply func args =
                  | x :: xs -> Env.def_local x (L.hd args) (go xs (L.tl args))
                end
              in go func.params args
-             else invalid_arg ("apply: invalid number of args, expected " ^
-                               string_of_int params_len ^ "+, given " ^
-                               string_of_int args_len)
+             else
+               arg_count_mismatch (string_of_int params_len ^ "+") args_len
     )
   in
     snd (eval_all {env with top_level = false} func.body)
@@ -62,11 +60,11 @@ and eval ?(tail=false) env sexp =
                             env'', Prim_func.apply [id; list_ args]
                       | Macro (PrimMacro (_, macro)) ->
                           macro env' tl
-                      | _ -> invalid_arg "eval: invalid application"
+                      | _ -> not_applicable id
                    )
-             | [] -> invalid_arg "eval: invalid application"
+             | [] -> not_applicable Undefined
           )
-      | DottedList _ -> invalid_arg "eval: cannot eval dotted list"
+      | DottedList _ -> invalid_arg "eval: cannot eval dotted list" (* TODO what kind of exn? *)
       | sexp -> env, Sexp sexp
   in
     if tail && !Runtime.enable_tco

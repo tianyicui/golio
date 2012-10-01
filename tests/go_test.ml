@@ -54,10 +54,10 @@ let _ =
 
   test_exn "(go (/ 1 0))" Division_by_zero;
   test_exn "(go (/ 1 0) (begin (sleep 200) x))"
-    (Repl_exn [Division_by_zero; Failure "get_var: cannot get undefined variable x"]);
+    (Repl_exn [Division_by_zero; Lisp_error (UnboundVar "x")]);
   test_exn "(define ch (make-chan)) (go (/ 1 0) (begin (sleep 200) x)) (receive ch)"
-    (Repl_exn [Division_by_zero; Failure "get_var: cannot get undefined variable x"; Dead_lock]);
+    (Repl_exn [Division_by_zero; Lisp_error (UnboundVar "x"); Dead_lock]);
   test_exn "(define ch (make-chan)) (go (/ 1 0) (begin (sleep 200) x)) (send ch 1)"
-    (Repl_exn [Division_by_zero; Failure "get_var: cannot get undefined variable x"; Dead_lock]);
+    (Repl_exn [Division_by_zero; Lisp_error (UnboundVar "x"); Dead_lock]);
 
   prerr_string "All passed!\n"
