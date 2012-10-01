@@ -1,12 +1,14 @@
 open Type
 
 let rec expand_thunk value =
+  Runtime.check_should_exit ();
   match value with
     | Thunk (func, args) ->
         expand_thunk (apply func args)
     | _ -> value
 
 and apply func args =
+  Runtime.check_should_exit ();
   let params_len = L.length func.params in
   let args_len = L.length args in
   let env =
@@ -33,6 +35,7 @@ and apply func args =
     snd (eval_all {env with top_level = false} func.body)
 
 and map env sexp_list =
+  Runtime.check_should_exit ();
   let env, rst_lst =
     L.fold_left
       (fun (env', lst) sexp ->
@@ -43,12 +46,14 @@ and map env sexp_list =
   in env, (L.rev rst_lst)
 
 and eval_all env sexp_list =
+  Runtime.check_should_exit ();
   L.fold_left
     (fun (env', _) sexp -> eval ~tail:true env' sexp)
     (env, Undefined)
     sexp_list
 
 and eval ?(tail=false) env sexp =
+  Runtime.check_should_exit ();
   let rst =
     match sexp with
       | Symbol id -> (env, Env.get_var id env)

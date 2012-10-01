@@ -58,4 +58,6 @@ let _ =
   test_exn "(define ch (make-chan)) (send ch 1)" Dead_lock;
   test_exn "(define ch (make-chan)) (receive ch)" Dead_lock;
 
+  test_exn "(go (/ 1 0))" Division_by_zero;
+
   prerr_string "All passed!\n"

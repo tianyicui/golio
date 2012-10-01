@@ -7,6 +7,12 @@ module S = String
 exception Dead_lock
 ;;
 
+type exit_status =
+  | NormalExit
+  | WithExn of exn
+  | DeadLock
+;;
+
 type value =
   | Sexp of sexp
   | Func of func

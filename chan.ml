@@ -27,15 +27,12 @@ let maintain_clients_count chan delta event =
   let will_block = (delta * chan.clients_count >= 0) in
     (if will_block then
        (chan.clients_count <- chan.clients_count + delta;
-        Runtime.thread_blocked (Thread.self ())));
+        Runtime.thread_blocked (Thread.self ()))
+     else
+       (chan.clients_count <- chan.clients_count - delta;
+        Runtime.thread_unblocked (Thread.self ())));
     unlock_clients_count chan;
-    let rst = Event.sync event in
-      (if will_block then
-         (Runtime.thread_unblocked (Thread.self ());
-          lock_clients_count chan;
-          chan.clients_count <- chan.clients_count - delta;
-          unlock_clients_count chan));
-      rst
+    Event.sync event
 ;;
 let send chan value =
   lock_buffer chan;

@@ -263,15 +263,9 @@ let load env params =
 ;;
 
 let go env param =
-  let eval sexp =
-    let rst = Eval.eval env sexp in
-      (Runtime.thread_terminated (Thread.self ());
-       rst)
-  in
   L.iter
     (fun sexp ->
-       let thread = Thread.create eval sexp in
-         Runtime.thread_started thread)
+       Runtime.new_thread (Eval.eval env) sexp)
     param;
   env, Undefined
 ;;

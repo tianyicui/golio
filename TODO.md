@@ -2,7 +2,9 @@
     * continuous refactor
     * GOROUTINES AND CHANNELS!
         * more and more tests
-        * `Dead_lock` exn should be raised at the main thread
+        * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?
+        * when a thread is permanently blocked, currently we cannot make it exit
+        * combining exception handling and deadlock detection
 
 * later
     * add `golio_test.ml`...

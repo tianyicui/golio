@@ -4,6 +4,13 @@ let enable_tco =
   ref true
 ;;
 
+let every_thread_should_exit =
+  ref false
+;;
+let check_should_exit () =
+  if !every_thread_should_exit then Thread.exit ()
+;;
+
 let chan_id_count =
   ref 0
 ;;
@@ -18,6 +25,10 @@ let new_chan_id () =
     id
 ;;
 
+let repl_sync_channel =
+  Event.new_channel ()
+;;
+
 let thread_queue =
   Q.create ()
 ;;
@@ -26,52 +37,51 @@ let tq_mutex =
 ;;
 
 let thread_count =
-  ref 1
-;;
-let tc_mutex =
-  Mutex.create ()
+  ref 0
 ;;
 let blocked_count =
   ref 0
 ;;
-let bc_mutex =
+let tc_bc_mutex =
   Mutex.create ()
 ;;
 
-let check_dead_lock () =
-  if !thread_count <= !blocked_count then
-    (Mutex.unlock tc_mutex;
-     Mutex.unlock bc_mutex;
-     raise Dead_lock)
+let check_terminal () =
+  assert (!thread_count >= !blocked_count);
+  if !thread_count == !blocked_count then
+    Event.sync (Event.send repl_sync_channel
+       (if (!thread_count == 0) then NormalExit else DeadLock))
 ;;
 
 let thread_started thread =
   Mutex.lock tq_mutex;
   Q.push thread thread_queue;
   Mutex.unlock tq_mutex;
-  Mutex.lock tc_mutex;
+  Mutex.lock tc_bc_mutex;
   thread_count := !thread_count + 1;
-  Mutex.unlock tc_mutex;
+  Mutex.unlock tc_bc_mutex;
 ;;
-let thread_terminated thread =
-  Mutex.lock tc_mutex;
+let thread_ended thread =
+  Mutex.lock tc_bc_mutex;
   thread_count := !thread_count - 1;
-  check_dead_lock ();
-  Mutex.unlock tc_mutex;
+  check_terminal ();
+  Mutex.unlock tc_bc_mutex;
 ;;
 let thread_blocked thread =
-  Mutex.lock bc_mutex;
+  Mutex.lock tc_bc_mutex;
   blocked_count := !blocked_count + 1;
-  check_dead_lock ();
-  Mutex.unlock bc_mutex;
+  check_terminal ();
+  Mutex.unlock tc_bc_mutex;
 ;;
 let thread_unblocked thread =
-  Mutex.lock bc_mutex;
+  Mutex.lock tc_bc_mutex;
   blocked_count := !blocked_count - 1;
-  Mutex.unlock bc_mutex;
+  Mutex.unlock tc_bc_mutex;
 ;;
 
 let init () =
+  every_thread_should_exit := false;
+
   Mutex.lock chan_id_cnt_mutex;
   chan_id_count := 0;
   Mutex.unlock chan_id_cnt_mutex;
@@ -80,17 +90,15 @@ let init () =
   Q.clear thread_queue;
   Mutex.unlock tq_mutex;
 
-  Mutex.lock tc_mutex;
-  thread_count := 1;
-  Mutex.unlock tc_mutex;
-
-  Mutex.lock bc_mutex;
+  Mutex.lock tc_bc_mutex;
+  thread_count := 0;
   blocked_count := 0;
-  Mutex.unlock bc_mutex;
+  Mutex.unlock tc_bc_mutex;
 
   Env.clear_globals ()
 ;;
-let finish () =
+let exit_all_threads () =
+  every_thread_should_exit := true;
   try
     while true do
       Mutex.lock tq_mutex;
@@ -100,4 +108,26 @@ let finish () =
     done
   with
     | Q.Empty -> Mutex.unlock tq_mutex;
+;;
+let exit_with_exn the_exn =
+  let go () =
+    exit_all_threads ();
+    Event.sync
+      (Event.send repl_sync_channel (WithExn the_exn))
+  in
+    ignore (Thread.create go ());
+    Thread.exit ();
+;;
+let new_thread func arg =
+  let sync_channel = Event.new_channel () in
+  let go () =
+    (Event.sync (Event.receive sync_channel);
+     (try ignore (func arg) with
+        | the_exn ->
+            exit_with_exn the_exn);
+     thread_ended (Thread.self ()))
+  in
+  let thread = Thread.create go () in
+    (thread_started thread;
+     Event.sync (Event.send sync_channel ()))
 ;;

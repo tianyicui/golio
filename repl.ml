@@ -1,3 +1,5 @@
+open Type
+
 type repl_config = {
   interactive : bool;
   print_result : bool;
@@ -26,13 +28,21 @@ let repl conf =
           | Some sexp ->
               let env', rst = Eval.eval env sexp in
                 begin match rst with
-                  | Type.Undefined -> ()
+                  | Undefined -> ()
                   | _ ->
                       if conf.print_result then
                         fprintf out_c "%s\n" (Print.print_value rst)
                 end;
                 go env';
     in
-      go (Prim_env.prim_env ());
-      Runtime.finish ()
+      Runtime.new_thread go (Prim_env.prim_env ());
+      let exit_status =
+        Event.sync (Event.receive Runtime.repl_sync_channel)
+      in
+        match exit_status with
+          | DeadLock ->
+              raise Dead_lock
+          | WithExn the_exn ->
+              raise the_exn
+          | NormalExit -> ()
 ;;
