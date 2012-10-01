@@ -4,13 +4,6 @@ let enable_tco =
   ref true
 ;;
 
-let every_thread_should_exit =
-  ref false
-;;
-let check_should_exit () =
-  if !every_thread_should_exit then Thread.exit ()
-;;
-
 let chan_id_count =
   ref 0
 ;;
@@ -25,7 +18,7 @@ let new_chan_id () =
     id
 ;;
 
-let repl_sync_channel =
+let repl_exn_channel =
   Event.new_channel ()
 ;;
 
@@ -49,8 +42,8 @@ let tc_bc_mutex =
 let check_terminal () =
   assert (!thread_count >= !blocked_count);
   if !thread_count == !blocked_count then
-    Event.sync (Event.send repl_sync_channel
-       (if (!thread_count == 0) then NormalExit else DeadLock))
+    Event.sync (Event.send repl_exn_channel
+       (if (!thread_count == 0) then Normal_exit else Dead_lock))
 ;;
 
 let thread_started thread =
@@ -80,8 +73,6 @@ let thread_unblocked thread =
 ;;
 
 let init () =
-  every_thread_should_exit := false;
-
   Mutex.lock chan_id_cnt_mutex;
   chan_id_count := 0;
   Mutex.unlock chan_id_cnt_mutex;
@@ -97,34 +88,13 @@ let init () =
 
   Env.clear_globals ()
 ;;
-let exit_all_threads () =
-  every_thread_should_exit := true;
-  try
-    while true do
-      Mutex.lock tq_mutex;
-      let thread = Q.pop thread_queue in
-        Mutex.unlock tq_mutex;
-        Thread.join thread
-    done
-  with
-    | Q.Empty -> Mutex.unlock tq_mutex;
-;;
-let exit_with_exn the_exn =
-  let go () =
-    exit_all_threads ();
-    Event.sync
-      (Event.send repl_sync_channel (WithExn the_exn))
-  in
-    ignore (Thread.create go ());
-    Thread.exit ();
-;;
 let new_thread func arg =
   let sync_channel = Event.new_channel () in
   let go () =
     (Event.sync (Event.receive sync_channel);
      (try ignore (func arg) with
-        | the_exn ->
-            exit_with_exn the_exn);
+        | expn ->
+            Event.sync (Event.send repl_exn_channel expn));
      thread_ended (Thread.self ()))
   in
   let thread = Thread.create go () in

@@ -3,8 +3,7 @@
     * GOROUTINES AND CHANNELS!
         * more and more tests
         * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?
-        * when a thread is permanently blocked, currently we cannot make it exit
-        * combining exception handling and deadlock detection
+        * when a thread is permanently blocked, currently we cannot make it exit (perhaps wontfix)
 
 * later
     * add `golio_test.ml`...

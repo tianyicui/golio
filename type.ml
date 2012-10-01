@@ -5,12 +5,8 @@ module Q = Queue
 module S = String
 
 exception Dead_lock
-;;
-
-type exit_status =
-  | NormalExit
-  | WithExn of exn
-  | DeadLock
+exception Normal_exit
+exception Repl_exn of exn list
 ;;
 
 type value =

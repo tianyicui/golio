@@ -36,13 +36,18 @@ let repl conf =
                 go env';
     in
       Runtime.new_thread go (Prim_env.prim_env ());
-      let exit_status =
-        Event.sync (Event.receive Runtime.repl_sync_channel)
+      let rec receive_exn exn_list =
+        let expn =
+          Event.sync (Event.receive Runtime.repl_exn_channel)
+        in
+          match expn with
+            | Normal_exit -> exn_list
+            | Dead_lock -> expn :: exn_list
+            | _ -> receive_exn (expn :: exn_list)
       in
-        match exit_status with
-          | DeadLock ->
-              raise Dead_lock
-          | WithExn the_exn ->
-              raise the_exn
-          | NormalExit -> ()
+      let exn_list = L.rev (receive_exn []) in
+        match exn_list with
+          | [] -> ()
+          | [expn] -> raise expn
+          | _ -> raise (Repl_exn exn_list)
 ;;
