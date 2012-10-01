@@ -2,19 +2,18 @@
 
 set -e
 
-bold=`tput bold`
-normal=`tput sgr0`
+OCAMLBUILD="ocamlbuild -I lib -no-links"
 
-for file in $(ls -t *_test.ml)
+for file in $(ls -t tests/*.ml)
 do
 	name=$(echo $file | sed -e 's/\.ml$//')
 	target=$name.d.byte
-	if ! ocamlbuild -no-links -nothing-should-be-rebuilt $target >/dev/null
+	if ! $OCAMLBUILD -nothing-should-be-rebuilt $target >/dev/null
 	then
-		echo "$bold>>> $name$normal"
-		if ! OCAMLRUNPARAM=b,l=2048K ocamlbuild -no-links $target --
+		echo "`tput bold`>>> $name`tput sgr0`"
+		if ! OCAMLRUNPARAM=b,l=2048K $OCAMLBUILD $target --
 		then
-			rm _build/$target
+			rm _build/tests/$target
 			exit 1
 		fi
 	fi

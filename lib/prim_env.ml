@@ -13,5 +13,5 @@ let prim_env () =
     map_and_bind
       (fun k v -> Macro (PrimMacro (k, v)))
       Prim_macro.prim_macros;
-    fst (Prim_macro.load Env.empty [String "stdlib.scm"])
+    fst (Prim_macro.load Env.empty [String "lib/stdlib.scm"])
 ;;

@@ -1,5 +1,5 @@
 #!/bin/sh
 
 set -e
-ocamlbuild libgolio.d.cma
-exec utop -init /dev/null libgolio.d.cma -I _build
+ocamlbuild lib/golio.d.cma
+exec utop -init /dev/null golio.d.cma -I _build/lib
