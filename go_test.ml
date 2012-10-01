@@ -1,18 +1,11 @@
 open Type
+open Test
 
 let _ =
-  let test str rst =
-    assert (Helper.run_str str = rst)
-  in
-
-  let test_exn str expected =
-    try (ignore (Helper.run_str str); assert false)
-    with catched -> assert (catched = expected)
-  in
 
   let test_time str time rst =
     let start_time = Unix.gettimeofday () in
-      test str rst;
+      Test.test str rst;
       let end_time = Unix.gettimeofday () in
       let run_time = end_time -. start_time in
         assert (run_time >= time)

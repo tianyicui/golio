@@ -1,8 +1,6 @@
-let _ =
-  let test str rst =
-    assert (Helper.run_str str = rst)
-  in
+open Test
 
+let _ =
   test "\"abc\"" "\"abc\"";
 
   test "1" "1";

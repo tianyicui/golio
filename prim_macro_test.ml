@@ -1,13 +1,6 @@
+open Test
+
 let _ =
-  let test str rst =
-    assert (Helper.run_str str = rst)
-  in
-
-  let test_exn str expected =
-    try (ignore (Helper.run_str str); assert false)
-    with catched -> assert (catched = expected)
-  in
-
   test "(begin 1 2 3)" "3";
   test "(define x 1) (begin (set! x 2) x)" "2";
   test "(begin (define x 1)) x" "1";
