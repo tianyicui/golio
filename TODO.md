@@ -1,5 +1,6 @@
 * current
     * continuous refactor
+        * add `.mli` files
     * better exception
         * type mismatch, etc.
     * GOROUTINES AND CHANNELS!

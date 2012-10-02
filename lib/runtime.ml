@@ -102,5 +102,5 @@ end
 let init () =
   Chan_id.init ();
   Fiber.init ();
-  Env.clear_globals ()
+  Env.init ()
 ;;

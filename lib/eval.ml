@@ -1,12 +1,6 @@
 open Type
 
-let rec expand_thunk value =
-  match value with
-    | Thunk (func, args) ->
-        expand_thunk (apply func args)
-    | _ -> value
-
-and apply func args =
+let rec apply func args =
   let params_len = L.length func.params in
   let args_len = L.length args in
   let env =
@@ -49,7 +43,6 @@ and eval_all env sexp_list =
           eval_all env' xs
 
 and eval ?(tail=false) env sexp =
-  (* prerr_string (Print.print_sexp sexp ^ "\n"); *)
   let rst =
     match sexp with
       | Symbol id -> (env, Env.get_var id env)
@@ -70,6 +63,11 @@ and eval ?(tail=false) env sexp =
       | DottedList _ -> invalid_arg "eval: cannot eval dotted list" (* TODO what kind of exn? *)
       | sexp -> env, Sexp sexp
   in
-    if tail && !Runtime.Eval.tco
-    then rst else fst rst, expand_thunk (snd rst)
+  let rec expand_thunk value =
+    match value with
+      | Thunk (func, args) ->
+          expand_thunk (apply func args)
+      | _ -> value
+  in
+    if tail && !Runtime.Eval.tco then rst else fst rst, expand_thunk (snd rst)
 ;;

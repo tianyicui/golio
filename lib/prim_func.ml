@@ -149,7 +149,7 @@ let read params =
   let lb =
     unpack_input_port
       (match params with
-         | [] -> !Port.stdin
+         | [] -> Env.get_global "stdin"
          | [port] -> port
          | _ -> arg_count_mismatch "0 or 1" (L.length params))
   in
@@ -164,7 +164,7 @@ let write params =
         let out_c =
           unpack_output_port
             (match remaining with
-               | [] -> !Port.stdout
+               | [] -> Env.get_global "stdout"
                | [port] -> port
                | _ -> arg_count_mismatch "1 or 2" (L.length params)
             )

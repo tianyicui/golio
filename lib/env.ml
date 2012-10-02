@@ -27,6 +27,10 @@ let get_var var env =
         unbound_var var
 ;;
 
+let get_global var =
+  !(H.find globals var)
+;;
+
 let def_local var value env =
   { env with locals = M.add var (ref value) env.locals}
 ;;
@@ -43,10 +47,10 @@ let set_var var value env =
         unbound_var var
 ;;
 
-let bind_locals init_env var_assoc =
+let bind_locals env var_assoc =
   L.fold_left
     (fun m (k, v) -> def_local k v m)
-    init_env
+    env
     var_assoc
 ;;
 
@@ -56,7 +60,7 @@ let bind_globals var_assoc =
     var_assoc
 ;;
 
-let clear_globals () =
+let init () =
   Mutex.lock glb_mutex;
   H.clear globals;
   Mutex.unlock glb_mutex
