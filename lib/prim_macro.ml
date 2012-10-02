@@ -280,7 +280,7 @@ let load env params =
 let go env param =
   L.iter
     (fun sexp ->
-       Runtime.new_thread (Eval.eval env) sexp)
+       Runtime.Fiber.create (Eval.eval env) sexp)
     param;
   env, Undefined
 ;;

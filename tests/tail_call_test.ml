@@ -1,9 +1,9 @@
 let _ =
 
   let test str rst =
-    Runtime.enable_tco := false;
+    Runtime.Eval.tco := false;
     Test.test_exn str Stack_overflow;
-    Runtime.enable_tco := true;
+    Runtime.Eval.tco := true;
     Test.test str rst
   in
 

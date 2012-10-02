@@ -36,10 +36,10 @@ let repl conf =
                 end;
                 go env';
     in
-      Runtime.new_thread go (Prim_env.prim_env ());
+      Runtime.Fiber.create go (Prim_env.prim_env ());
       let rec receive_exn exn_list =
         let expn =
-          Event.sync (Event.receive Runtime.repl_exn_channel)
+          Event.sync (Event.receive Runtime.Repl.exn_channel)
         in
           match expn with
             | Normal_exit -> exn_list

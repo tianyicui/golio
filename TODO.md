@@ -2,7 +2,6 @@
     * continuous refactor
     * better exception
         * type mismatch, etc.
-    * split `runtime.ml` into modules
     * GOROUTINES AND CHANNELS!
         * more and more tests
         * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?

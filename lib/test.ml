@@ -1,13 +1,13 @@
 open Type
 
 let run_str ?(print_exn=true) str =
-  let temp_in = Runtime.temp_file () in
+  let temp_in = Runtime.Temp_file.gen () in
   let str_c = open_out temp_in in
     output_string str_c str;
     close_out str_c;
 
     let in_c = open_in temp_in in
-    let temp_out = Runtime.temp_file () in
+    let temp_out = Runtime.Temp_file.gen () in
     let out_c = open_out temp_out in
       (let open Repl in
          repl {

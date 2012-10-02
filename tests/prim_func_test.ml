@@ -89,8 +89,8 @@ let _ =
   test "(newline stdout) (write 1 stdout)" "\n1";
 
   begin
-    let temp_in = Runtime.temp_file () in
-    let temp_out = Runtime.temp_file () in
+    let temp_in = Runtime.Temp_file.gen () in
+    let temp_out = Runtime.Temp_file.gen () in
     let in_file_c = open_out temp_in in
       output_string in_file_c "(1 2 3)";
       close_out in_file_c;

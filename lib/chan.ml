@@ -1,7 +1,7 @@
 open Type
 
 let create capacity = {
-  id = Runtime.new_chan_id ();
+  id = Runtime.Chan_id.gen ();
   channel = Event.new_channel ();
   capacity = capacity;
   buffer = Q.create ();
@@ -27,10 +27,10 @@ let maintain_clients_count chan delta event =
   let will_block = (delta * chan.clients_count >= 0) in
     (if will_block then
        (chan.clients_count <- chan.clients_count + delta;
-        Runtime.thread_blocked (Thread.self ()))
+        Runtime.Fiber.blocked ())
      else
        (chan.clients_count <- chan.clients_count - delta;
-        Runtime.thread_unblocked (Thread.self ())));
+        Runtime.Fiber.unblocked ()));
     unlock_clients_count chan;
     Event.sync event
 ;;
