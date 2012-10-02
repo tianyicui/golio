@@ -1,5 +1,9 @@
 open Type
 
+let temp_file () =
+  Filename.temp_file "golio-" ""
+;;
+
 let enable_tco =
   ref true
 ;;

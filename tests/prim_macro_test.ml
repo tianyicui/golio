@@ -107,7 +107,7 @@ let _ =
        "8\n10\n14\n19\n9";
 
   begin
-    let temp_file = Helper.temp_file () in
+    let temp_file = Runtime.temp_file () in
     let out_c = open_out temp_file in
       output_string out_c "(define x 'loaded) (define y 'ok)";
       close_out out_c;

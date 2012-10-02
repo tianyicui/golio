@@ -173,6 +173,19 @@ let write params =
           flush out_c;
           Undefined
 ;;
+let newline params =
+  let out_c =
+    unpack_output_port
+      (match params with
+         | [] -> !Port.stdout
+         | [obj] -> obj
+         | _ -> arg_count_mismatch "0 or 1" (L.length params)
+      )
+  in
+    output_string out_c "\n";
+    flush out_c;
+    Undefined
+;;
 let open_input_file file =
   let in_c = open_in file in
     input_port file (Lexing.from_channel in_c) in_c;
@@ -286,6 +299,7 @@ let prim_functions =
 
       "read", read;
       "write", write;
+      "newline", newline;
       "open-input-file", str_unary_op open_input_file;
       "open-output-file", str_unary_op open_output_file;
       "close-input-port", unary_op close_input_port;

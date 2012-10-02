@@ -18,3 +18,10 @@ do
 		fi
 	fi
 done
+
+for scm in $(ls -t tests/*.scm)
+do
+	name=$(echo $scm | sed -e 's/\.scm$//')
+	echo "`tput bold`>>> $name`tput sgr0`"
+	./golio $scm | diff $name.out -
+done

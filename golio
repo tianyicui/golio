@@ -1,2 +1,3 @@
 #!/bin/bash
-OCAMLRUNPARAM=b exec ledit ocamlbuild -I lib -no-links golio.d.byte -- "$@"
+ocamlbuild -I lib -no-links golio.d.byte 1>&2
+OCAMLRUNPARAM=b _build/golio.d.byte "$@"

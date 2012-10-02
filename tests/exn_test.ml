@@ -27,6 +27,7 @@ let _ =
   test_arg_count_mismatch "(read 1 2)" "0 or 1" 2;
   test_arg_count_mismatch "(write)" "1 or 2" 0;
   test_arg_count_mismatch "(write 1 2 3)" "1 or 2" 3;
+  test_arg_count_mismatch "(newline 1 2)" "0 or 1" 2;
   test_arg_count_mismatch "(apply min)" "2+" 1;
   test_arg_count_mismatch "(make-chan 1 2)" "0 or 1" 2;
 

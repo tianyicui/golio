@@ -85,9 +85,12 @@ let _ =
   test "(write \"\\n\")" "\"\\n\"";
   test "(write '(a b c) stdout)" "(a b c)";
 
+  test "(newline) (write 1)" "\n1";
+  test "(newline stdout) (write 1 stdout)" "\n1";
+
   begin
-    let temp_in = Helper.temp_file () in
-    let temp_out = Helper.temp_file () in
+    let temp_in = Runtime.temp_file () in
+    let temp_out = Runtime.temp_file () in
     let in_file_c = open_out temp_in in
       output_string in_file_c "(1 2 3)";
       close_out in_file_c;

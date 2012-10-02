@@ -25,9 +25,13 @@ let _ =
             print_result = false;
           }
       | [| _; filename |] ->
-          ignore (Prim_macro.load
-                    (Prim_env.prim_env ())
-                    [Type.String filename])
+          repl {
+            stdin = open_in filename;
+            stdout;
+            lexbuf = None;
+            interactive = false;
+            print_result = false;
+          }
       | [| _ |] ->
           repl {
             stdin;
