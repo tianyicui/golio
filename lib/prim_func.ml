@@ -10,6 +10,9 @@ let num_binop op params =
     | hd :: tl -> number (L.fold_left op hd tl)
     | _ -> arg_count_mismatch "1+" (L.length params)
 ;;
+let num_fold_op op init params =
+  number (L.fold_left op init (L.map unpack_num params))
+;;
 let bool_any_binop op args =
   bool_ (binary_op op args)
 ;;
@@ -235,9 +238,9 @@ let send chan value =
 
 let prim_functions =
     [
-      "+", num_binop (+);
+      "+", num_fold_op (+) 0;
       "-", num_binop (-);
-      "*", num_binop ( * );
+      "*", num_fold_op ( * ) 1;
       "/", num_binop (/);
       "%", num_binop (mod);
 

@@ -4,7 +4,6 @@
     * GOROUTINES AND CHANNELS!
         * more and more tests
         * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?
-    * `+` and `*` can take 0 args
 
 * later
     * add `golio_test.ml`...
