@@ -1,20 +1,23 @@
 * current
     * continuous refactor
     * GOROUTINES AND CHANNELS!
+        * `yield` and `select`
         * more and more tests
-        * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?
 
-* later
+* 0.1
     * add `golio_test.ml`...
-    * refactor quasiquote
     * A global symbol table (using Weak)
-    * ocamldoc
-    * better exception: where the error is at
-    * user-defined macro
     * more complete and compliant stdlib and tests
         * more I/O functions
         * `eval`
         * `delay` and `force`
-        * vector
+    * ocamldoc
     * OASIS
+
+* later
+    * refactor quasiquote
+    * better exception: where the error is at
+    * user-defined macro
+    * vector
     * `call-with-current-continuation` and `dynaic-wind`?
+    * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?
