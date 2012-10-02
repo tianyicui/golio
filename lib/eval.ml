@@ -41,12 +41,15 @@ and map env sexp_list =
   in env, (L.rev rst_lst)
 
 and eval_all env sexp_list =
-  L.fold_left
-    (fun (env', _) sexp -> eval ~tail:true env' sexp)
-    (env, Undefined)
-    sexp_list
+  match sexp_list with
+    | [] -> env, Undefined
+    | [sexp] -> eval ~tail:true env sexp
+    | x :: xs ->
+        let env', _ = eval env x in
+          eval_all env' xs
 
 and eval ?(tail=false) env sexp =
+  (* prerr_string (Print.print_sexp sexp ^ "\n"); *)
   let rst =
     match sexp with
       | Symbol id -> (env, Env.get_var id env)

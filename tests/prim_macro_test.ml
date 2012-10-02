@@ -5,6 +5,7 @@ let _ =
   test "(begin 1 2 3)" "3";
   test "(define x 1) (begin (set! x 2) x)" "2";
   test "(begin (define x 1)) x" "1";
+  test "(define (f x) (write x)) (begin (f 1) (f 2))" "12";
 
   test "(if 1 2 invalid)" "2";
   test "(if #f invalid 'ok)" "ok";
