@@ -9,7 +9,7 @@ let _ =
   test "(if 1 2 invalid)" "2";
   test "(if #f invalid 'ok)" "ok";
   test "(if #t 1)" "1";
-  test "(if #f 1)" "()";
+  test "(if #f 1)" "";
 
   test "(define x 3) x (+ x x)" "3\n6";
   test "(define x 1) x (define x (+ x 1)) x" "1\n2";
@@ -41,6 +41,7 @@ let _ =
   test_exn "(let () (define x 1) x) x"
     (Lisp_error (UnboundVar "x"));
   test "(begin (define a 5) (let ((a 10) (b a)) (- a b)))" "5";
+  test "(let loop ((i 5)) (write i) (if (/= i 0) (loop (- i 1))))" "543210";
 
   test "(letrec ((x 2) (y 3)) (* x y))" "6";
   test "(letrec ((x 2) (y 3)) (letrec ((x 7) (z (+ x y))) (* z x)))" "35";

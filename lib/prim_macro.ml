@@ -19,7 +19,7 @@ let if_ env params =
       | env', Sexp (Bool false) ->
           (match optional_alt with
              | Some alt -> Eval.eval ~tail:true env' alt
-             | None -> env', list_ []
+             | None -> env', Undefined
           )
       | env', _ -> Eval.eval ~tail:true env' conseq
 ;;
@@ -50,6 +50,15 @@ let build_func env params =
     | _ -> invalid_arg "lambda: invalid arguments list"
 ;;
 
+let self_ref_func func name =
+  let func' = {
+    func with
+        closure = Env.def_local name Undefined func.closure
+  } in
+  let rst = user_func func' in
+    (Env.set_var name rst func'.closure; rst)
+;;
+
 let define env params =
   let pair_cdr sexp =
     match sexp with
@@ -58,14 +67,8 @@ let define env params =
       | DottedList ((_ :: xs), x) -> DottedList (xs, x)
       | _ -> failwith "unreachable"
   in
-  let named_lambda var params =
-    let func = build_func env params in
-    let func' = {
-      func with
-          closure = Env.def_local var Undefined func.closure
-    } in
-    let rst = user_func func' in
-      (Env.set_var var rst func'.closure; rst)
+  let named_lambda name params =
+    self_ref_func (build_func env params) name
   in
   let var, (env', value) =
     match params with
@@ -94,7 +97,7 @@ let set env params =
     | _ -> invalid_arg "set!: expected 2 arguments"
 ;;
 
-let let_to_apply is_rec env params =
+let let_to_apply ?named is_rec env params =
   let def_vars vars env =
     L.fold_left
       (fun e v ->
@@ -105,16 +108,16 @@ let let_to_apply is_rec env params =
       env
       vars
   in
-  let name = if is_rec then "letrec" else "let" in
+  let keyword = if is_rec then "letrec" else "let" in
     match params with
-      | [] -> invalid_arg (name ^ ": should have a binding list")
+      | [] -> invalid_arg (keyword ^ ": should have a binding list")
       | List bindings :: body ->
           let vars, inits = L.split (
             L.map
               (fun binding ->
                  match unpack_sexp binding with
                    | List [Sexp (Symbol var); Sexp init] -> var, init
-                   | _ -> invalid_arg (name ^ ": invalid binding list"))
+                   | _ -> invalid_arg (keyword ^ ": invalid binding list"))
               bindings
           ) in
           let env', values =
@@ -123,14 +126,26 @@ let let_to_apply is_rec env params =
             begin
               if is_rec then
                 L.iter2 (fun var value -> Env.set_var var value env') vars values;
-              let func = {params = vars; vararg = None; body = body; closure = env'} in
-                env, Prim_func.apply [user_func func; list_ values]
+              let func = (
+                let func' = {params = vars; vararg = None; body = body; closure = env'} in
+                  match named with
+                    | None -> user_func func'
+                    | Some name -> self_ref_func func' name
+              ) in
+                env, Prim_func.apply [func; list_ values]
             end
-      | _ -> invalid_arg (name ^ ": invalid binding list")
+      | _ -> invalid_arg (keyword ^ ": invalid binding list")
 ;;
 
-let let_ =
-  let_to_apply false
+let let_ env params =
+  match params with
+    | []
+    | [_] ->
+        arg_count_mismatch "2+" (L.length params)
+    | (Symbol name) :: bindings_and_body ->
+        let_to_apply ~named:name false env bindings_and_body
+    | _ ->
+        let_to_apply false env params
 ;;
 
 let letrec =
