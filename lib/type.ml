@@ -114,6 +114,11 @@ let arg_count_mismatch expected got =
                 {arg_count_expected = expected;
                  arg_count_got = got})
 ;;
+let arg_type_mismatch expected got =
+  lisp_error (ArgTypeMismatch
+                {arg_type_expected = expected;
+                 arg_type_got = got})
+;;
 let not_applicable value =
   lisp_error (NotApplicable value)
 ;;
@@ -124,55 +129,50 @@ let unbound_var var =
 let unpack_sexp value =
   match value with
     | Sexp sexp -> sexp
-    | _ -> invalid_arg "unpack_sexp: expected a sexp"
+    | _ -> arg_type_mismatch "sexp" value
 ;;
 let unpack_num value =
   match unpack_sexp value with
     | Number num -> num
-    | _ -> invalid_arg "unpack_num: expected a number"
+    | _ -> arg_type_mismatch "number" value
 ;;
 let unpack_sym value =
   match unpack_sexp value with
     | Symbol sym -> sym
-    | _ -> invalid_arg "unpack_sym: expected a symbol"
+    | _ -> arg_type_mismatch "symbol" value
 ;;
 let unpack_str value =
   match unpack_sexp value with
     | String str -> str
-    | _ -> invalid_arg "unpack_str: expected a string"
+    | _ -> arg_type_mismatch "string" value
 ;;
 let unpack_bool value =
   match unpack_sexp value with
     | Bool bl -> bl
-    | _ -> invalid_arg "unpack_bool: expected a bool"
+    | _ -> arg_type_mismatch "bool" value
 ;;
 let unpack_list value =
   match unpack_sexp value with
     | List lst -> lst
-    | _ -> invalid_arg "unpack_list: expected a list"
-;;
-let unpack_func value =
-  match value with
-    | Func func -> func
-    | _ -> invalid_arg "unpack_func: expected a func"
+    | _ -> arg_type_mismatch "list" value
 ;;
 let unpack_input_port value =
   match value with
     | Port (InputPort (_, lb, _)) -> lb
-    | _ -> invalid_arg "unpack_input_port: expected an input port"
+    | _ -> arg_type_mismatch "input-port" value
 ;;
 let unpack_input_port_for_channel value =
   match value with
     | Port (InputPort (_, _, channel)) -> channel
-    | _ -> invalid_arg "unpack_input_port_for_channel: expected an input port"
+    | _ -> arg_type_mismatch "input-port" value
 ;;
 let unpack_output_port value =
   match value with
     | Port (OutputPort (_, channel)) -> channel
-    | _ -> invalid_arg "unpack_output_port: expected an output port"
+    | _ -> arg_type_mismatch "output-port" value
 ;;
 let unpack_chan value =
   match value with
     | Chan chan -> chan
-    | _ -> invalid_arg "unpack_chan: expectd a chan"
+    | _ -> arg_type_mismatch "chan" value
 ;;

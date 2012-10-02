@@ -60,7 +60,7 @@ and eval ?(tail=false) env sexp =
                    )
              | [] -> not_applicable Undefined
           )
-      | DottedList _ -> invalid_arg "eval: cannot eval dotted list" (* TODO what kind of exn? *)
+      | DottedList _ -> arg_type_mismatch "atom or list" (Sexp sexp)
       | sexp -> env, Sexp sexp
   in
   let rec expand_thunk value =

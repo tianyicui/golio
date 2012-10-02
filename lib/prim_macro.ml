@@ -15,7 +15,7 @@ let if_ env params =
     match params with
       | [x; y] -> x, y, None
       | [x; y; z] -> x, y, Some z
-      | _ -> invalid_arg "if: expected 2 or more arguments"
+      | _ -> arg_count_mismatch "2 or 3" (L.length params)
   in
     match (Eval.eval env pred) with
       | env', Sexp (Bool false) ->
@@ -49,7 +49,7 @@ let build_func env params =
           body = body;
           closure = env;
         }
-    | _ -> invalid_arg "lambda: invalid arguments list"
+    | _ -> invalid_arg "lambda: invalid arguments list" (* TODO: what exn? *)
 ;;
 
 let self_ref_func func name =
@@ -76,11 +76,11 @@ let define env params =
     match params with
       | [Symbol var; expr] ->
           var, Eval.eval env expr
-      | List [] :: _ -> invalid_arg "define: empty definition list"
+      | List [] :: _ -> invalid_arg "define: empty definition list" (* TODO *)
       | (List (Sexp (Symbol var) :: _) as definition) :: body
       | (DottedList ((Sexp (Symbol var) :: _), _) as definition) :: body ->
           var, (env, named_lambda var (pair_cdr definition :: body))
-      | _ -> invalid_arg "define: invalid arguments"
+      | _ -> invalid_arg "define: invalid arguments" (* TODO *)
   in
     (if env'.top_level then
        (Env.def_global var value; env')
@@ -95,8 +95,8 @@ let set env params =
         let env', value = Eval.eval env expr in
           (Env.set_var var value env;
            env, Undefined)
-    | [_; _] -> invalid_arg "set!: first argument should be a symbol"
-    | _ -> invalid_arg "set!: expected 2 arguments"
+    | [x; _] -> arg_type_mismatch "symbol" (Sexp x)
+    | _ -> arg_count_mismatch "2" (L.length params)
 ;;
 
 let let_to_apply ?named is_rec env params =
@@ -112,14 +112,14 @@ let let_to_apply ?named is_rec env params =
   in
   let keyword = if is_rec then "letrec" else "let" in
     match params with
-      | [] -> invalid_arg (keyword ^ ": should have a binding list")
+      | [] -> invalid_arg (keyword ^ ": should have a binding list") (* TODO *)
       | List bindings :: body ->
           let vars, inits = L.split (
             L.map
               (fun binding ->
                  match unpack_sexp binding with
                    | List [Sexp (Symbol var); Sexp init] -> var, init
-                   | _ -> invalid_arg (keyword ^ ": invalid binding list"))
+                   | _ -> invalid_arg (keyword ^ ": invalid binding list")) (* TODO *)
               bindings
           ) in
           let env', values =
@@ -136,7 +136,7 @@ let let_to_apply ?named is_rec env params =
               ) in
                 env, Prim_func.apply [func; list_ values]
             end
-      | _ -> invalid_arg (keyword ^ ": invalid binding list")
+      | _ -> invalid_arg (keyword ^ ": invalid binding list") (* TODO *)
 ;;
 
 let let_ env params =
@@ -156,7 +156,7 @@ let letrec =
 
 let let_star env params =
   match params with
-    | [] -> invalid_arg "let*: should have a binding list"
+    | [] -> invalid_arg "let*: should have a binding list" (* TODO *)
     | List bindings :: body ->
         let env' =
           L.fold_left
@@ -164,29 +164,26 @@ let let_star env params =
                match b with
                  | Sexp (List l) ->
                      fst (define e (L.map unpack_sexp l))
-                 | _ -> invalid_arg "let*: invalid binding list"
+                 | _ -> invalid_arg "let*: invalid binding list" (* TODO *)
             )
             { env with top_level = false }
             bindings
         in
           env, snd (begin_ env' body)
-    | _ -> invalid_arg "let*: invalid binding list"
+    | _ -> invalid_arg "let*: invalid binding list" (* TODO *)
 ;;
 
 let rec quasiquote level env params =
   let qq_list lst =
     let rec flatten lists =
       let append l r =
-        match l with
-          | Sexp (List xs) ->
-              (match r with
-                 | Sexp (List ys) -> List (xs @ ys)
-                 | Sexp (DottedList (ys, last)) ->
-                     DottedList ((xs @ ys), last)
-                 | y ->
-                     DottedList (xs, y)
-              )
-          | _ -> invalid_arg "append: first argument should be a list"
+        let xs = unpack_list l in
+          match r with
+            | Sexp (List ys) -> List (xs @ ys)
+            | Sexp (DottedList (ys, last)) ->
+                DottedList ((xs @ ys), last)
+            | y ->
+                DottedList (xs, y)
       in
         match lists with
           | [] -> List []
@@ -238,7 +235,7 @@ let rec quasiquote level env params =
           in
             env, dotted_list arg_rst last_rst
       | [arg] -> env, Sexp arg
-        | _ -> invalid_arg "quasiquote: should have exactly 1 argument"
+      | _ -> arg_count_mismatch "1" (L.length params)
 and unquote ?(splicing=false) level env params =
   if level != 0 then
     (let env', rst = quasiquote level env params in
@@ -249,7 +246,7 @@ and unquote ?(splicing=false) level env params =
     match params with
       | [arg] ->
           Eval.eval env arg
-      | _ -> invalid_arg "unquote: should have exactly 1 argument"
+      | _ -> arg_count_mismatch "1" (L.length params)
 ;;
 
 let lambda env params =
@@ -269,14 +266,9 @@ let load env params =
   in
   match params with
     | [param] ->
-        let env', arg = Eval.eval env param in
-          (match arg with
-             | Sexp (String filename) ->
-                 (load_file env' filename, Undefined)
-             | _ ->
-                 invalid_arg "load: the argument should be a string"
-          )
-    | _ -> invalid_arg "load: should have one single argument"
+        let env', filename = Eval.eval env param in
+          load_file env' (unpack_str filename), Undefined
+    | _ -> arg_count_mismatch "1" (L.length params)
 ;;
 
 let go env param =

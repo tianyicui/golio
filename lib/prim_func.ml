@@ -96,10 +96,10 @@ let is_eof_object arg =
     | _ -> bool_ false
 ;;
 
-let string_to_symbol arg =
+let symbol_to_string arg =
   string_ (unary_op unpack_sym arg)
 ;;
-let symbol_to_string arg =
+let string_to_symbol arg =
   symbol (unary_op unpack_str arg)
 ;;
 
@@ -107,14 +107,14 @@ let car param =
   match unpack_sexp param with
     | List (x :: _) -> x
     | DottedList ((x :: _), _) -> x
-    | _ -> invalid_arg "car: expected a pair"
+    | _ -> arg_type_mismatch "pair" param
 ;;
 let cdr param =
   match unpack_sexp param with
     | List (_ :: xs) -> list_ xs
     | DottedList ([_], x) -> x
     | DottedList ((_ :: xs), x) -> dotted_list xs x
-    | _ -> invalid_arg "cdr: expected a pair"
+    | _ -> arg_type_mismatch "pair" param
 ;;
 let cons hd tl =
   match hd, tl with
@@ -221,7 +221,7 @@ let apply params =
                 func arg
             | UserFunc func ->
                 Thunk (func, arg))
-    | _ -> invalid_arg "apply: not applicable"
+    | x :: _ -> arg_type_mismatch "procedure" x
 ;;
 
 let sleep value =
@@ -285,8 +285,8 @@ let prim_functions =
       "output-port?", unary_op is_output_port;
       "eof-object?", unary_op is_eof_object;
 
-      "symbol->string", string_to_symbol;
-      "string->symbol", symbol_to_string;
+      "symbol->string", symbol_to_string;
+      "string->symbol", string_to_symbol;
 
       "car", unary_op car;
       "cdr", unary_op cdr;
