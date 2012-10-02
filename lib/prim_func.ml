@@ -177,7 +177,7 @@ let newline params =
   let out_c =
     unpack_output_port
       (match params with
-         | [] -> !Port.stdout
+         | [] -> Env.get_global "stdout"
          | [obj] -> obj
          | _ -> arg_count_mismatch "0 or 1" (L.length params)
       )

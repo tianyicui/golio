@@ -1,7 +1,9 @@
 open Type
 
 let quote env param =
-  env, (Prim_func.unary_op (fun x -> Sexp x) param)
+  match param with
+    | [arg] -> env, Sexp arg
+    | _ -> arg_count_mismatch "1" (L.length param)
 ;;
 
 let begin_ env params =

@@ -48,6 +48,9 @@ let _ =
   test_arg_count_mismatch "(define (f x . y) (cons x y)) (f)" "1+" 0;
   test_arg_count_mismatch "(define (f x y . z) (cons (+ x y) z)) (f 1)" "2+" 1;
 
+  test_arg_count_mismatch "(quote)" "1" 0;
+  test_arg_count_mismatch "(quote 1 2)" "1" 2;
+
   test_not_applicable "(1 2)" (number 1);
   test_not_applicable "(define x 1) (x 2)" (number 1);
   test_not_applicable "('(1 2 3) 2 3)" (list_ [number 1; number 2; number 3]);
