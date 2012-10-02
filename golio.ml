@@ -15,6 +15,7 @@ let _ =
             lexbuf = Some (Lexing.from_string sexp);
             interactive = false;
             print_result = false;
+            print_exn = true;
           }
       | [| _; "-" |] ->
           repl {
@@ -23,6 +24,7 @@ let _ =
             lexbuf = None;
             interactive = false;
             print_result = false;
+            print_exn = true;
           }
       | [| _; filename |] ->
           repl {
@@ -31,6 +33,7 @@ let _ =
             lexbuf = None;
             interactive = false;
             print_result = false;
+            print_exn = true;
           }
       | [| _ |] ->
           repl {
@@ -39,6 +42,7 @@ let _ =
             lexbuf = None;
             interactive = true;
             print_result = true;
+            print_exn = true;
           }
       | _ -> usage ()
 ;;

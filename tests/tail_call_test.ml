@@ -11,6 +11,7 @@ let _ =
   test "(define (f x) (if (/= x 0) (f (- x 1)) 0)) (f 1024)" "0";
   (* TODO cond, case, and, or *)
   test "(define (f x) (if (= x 0) 0 (let ((y (- x 1))) (f y)))) (f 1024)" "0";
+  test "(let loop ((x 1024)) (if (= x 0) 0 (loop (- x 1))))" "0";
   test "(define (f x) (if (= x 0) 0 (let* ((y (- x 1))) (f y)))) (f 1024)" "0";
   test "(define (f x) (if (= x 0) 0 (letrec ((y (- x 1))) (f y)))) (f 1024)" "0";
   test "(letrec ((even?

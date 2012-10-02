@@ -3,6 +3,7 @@ open Type
 type repl_config = {
   interactive : bool;
   print_result : bool;
+  print_exn : bool;
   lexbuf : Lexing.lexbuf option;
   stdin : in_channel;
   stdout : out_channel;
@@ -46,8 +47,14 @@ let repl conf =
             | _ -> receive_exn (expn :: exn_list)
       in
       let exn_list = L.rev (receive_exn []) in
+      let final_exn =
         match exn_list with
-          | [] -> ()
-          | [expn] -> raise expn
-          | _ -> raise (Repl_exn exn_list)
+          | [] -> Normal_exit
+          | [expn] -> expn
+          | _ -> (Repl_exn exn_list)
+      in
+        if final_exn <> Normal_exit then
+          (if conf.print_exn then
+             prerr_endline(Print.print_exn final_exn);
+           raise final_exn)
 ;;

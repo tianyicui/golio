@@ -73,3 +73,31 @@ and print_value value =
     | Thunk _ ->
         failwith "print_value: should not print Thunk"
 ;;
+
+let rec print_exn expn =
+  match expn with
+    | Lisp_error error ->
+        (match error with
+           | ParseError -> "ParseError"
+           | ArgCountMismatch {
+               arg_count_expected = expected;
+               arg_count_got = got;
+             } ->
+               sprintf "ArgCountMismatch: expected %s, got %i"
+                       expected got
+           | ArgTypeMismatch {
+               arg_type_expected = expected;
+               arg_type_got = got
+             } ->
+               sprintf "ArgTypeMismatch: expected %s, got %s"
+                       expected (print_value got)
+           | NotApplicable value ->
+               sprintf "NotApplicable: %s" (print_value value)
+           | UnboundVar var ->
+               sprintf "UnboundVar: %s" var
+        )
+    | Dead_lock -> "Dead_lock"
+    | Repl_exn lst ->
+        "Repl_exn:\n    " ^ S.concat "\n    " (L.map print_exn lst)
+    | expn -> Printexc.to_string expn
+;;

@@ -11,7 +11,7 @@ do
 	if ! $OCAMLBUILD -nothing-should-be-rebuilt $target >/dev/null
 	then
 		echo "`tput bold`>>> $name`tput sgr0`"
-		if ! OCAMLRUNPARAM=b,l=2048K $OCAMLBUILD $target --
+		if ! OCAMLRUNPARAM=b,l=64K $OCAMLBUILD $target --
 		then
 			rm _build/$target
 			exit 1

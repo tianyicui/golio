@@ -24,7 +24,7 @@ let _ =
   test "(define x 0) (define z 1) (define (f x y) (set! z 2) (+ x y))
       (f 1 2) x z" "3\n0\n2";
   test "(define (factorial x) (if (= x 1) 1 (* x (factorial (- x 1)))))
-      (factorial 10)" "3628800";
+      (factorial 9)" "362880";
   test "(define add3 (lambda (x) (+ x 3))) (add3 3)" "6";
   test "(define first car) (first '(1 2))" "1";
   test "(define (add . l) (apply + l)) (add -2 -1 0 1 2)" "0";

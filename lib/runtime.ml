@@ -26,13 +26,6 @@ let repl_exn_channel =
   Event.new_channel ()
 ;;
 
-let thread_queue =
-  Q.create ()
-;;
-let tq_mutex =
-  Mutex.create ()
-;;
-
 let thread_count =
   ref 0
 ;;
@@ -51,9 +44,6 @@ let check_terminal () =
 ;;
 
 let thread_started thread =
-  Mutex.lock tq_mutex;
-  Q.push thread thread_queue;
-  Mutex.unlock tq_mutex;
   Mutex.lock tc_bc_mutex;
   thread_count := !thread_count + 1;
   Mutex.unlock tc_bc_mutex;
@@ -80,10 +70,6 @@ let init () =
   Mutex.lock chan_id_cnt_mutex;
   chan_id_count := 0;
   Mutex.unlock chan_id_cnt_mutex;
-
-  Mutex.lock tq_mutex;
-  Q.clear thread_queue;
-  Mutex.unlock tq_mutex;
 
   Mutex.lock tc_bc_mutex;
   thread_count := 0;
