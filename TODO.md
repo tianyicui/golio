@@ -17,7 +17,11 @@
     * user-defined macro
     * refactor `quasiquote`
     * `cond`, `case`, `and`, `or`
-    * better exception: where the error is
     * vector
-    * `call-with-current-continuation` and `dynaic-wind`?
     * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?
+
+* long term
+    * better exception: where the error is
+    * `call-with-current-continuation` and `dynaic-wind`
+    * OCaml Companion Tools (doc, lint, coverage, etc.)
+    * Use GADTs to improve type
