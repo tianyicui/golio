@@ -12,6 +12,7 @@ Port
 Chan
 Promise
 
+Stdlib
 Runtime
 Eval
 Repl

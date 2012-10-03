@@ -1,0 +1,16 @@
+OASISFormat: 0.3
+Name:        golio
+Version:     0.1-dev
+Synopsis:    GoLio is a lisp dialect implemented in OCaml with a go-like
+  concurrency model (i.e, goroutines and channels).
+Authors:     Tianyi Cui
+License:     MIT
+BuildTools:  ocamlbuild
+Homepage:    https://github.com/tianyicui/golio
+
+Executable golio
+  Path:           src/
+  MainIs:         golio.ml
+  BuildDepends:   unix,
+                  threads
+  CompiledObject: best

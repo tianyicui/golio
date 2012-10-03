@@ -2,7 +2,7 @@ open Repl
 
 let _ =
   let usage () =
-    Printf.printf "usage: %s [-c cmd | file | - ]\n" Sys.argv.(0)
+    Printf.printf "usage: %s [-c cmd | file | - ]\n" Sys.executable_name
   in
     match Sys.argv with
       | [| _; "-h" |]

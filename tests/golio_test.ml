@@ -20,5 +20,6 @@ let _ =
   ignore (test "-h" "");
   ignore (test "-c '(write 1)'" "1");
   assert (test "" "1\n2" = "> 1\n> 2\n> ");
+  assert (test "-" "(write 1) 2" = "1");
 
   prerr_endline "All passed!"

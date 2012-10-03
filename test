@@ -2,7 +2,7 @@
 
 set -e
 
-OCAMLBUILD="ocamlbuild -I lib -no-links"
+OCAMLBUILD="ocamlbuild -I src -no-links"
 
 for file in $(ls -t tests/*.ml)
 do

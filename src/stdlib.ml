@@ -1,3 +1,5 @@
+let stdlib =
+"
 (define (caar x) (car (car x)))
 (define (cadr x) (car (cdr x)))
 (define (cdar x) (cdr (car x)))
@@ -113,3 +115,4 @@
 (define (filter pred lst) (foldr (lambda (x y) (if (pred x) (cons x y) y)) '() lst))
 
 ; TODO string-length, string-ref, string-set!, string-ci=? and co, substring, string-append, string-copy, string-fill!
+"

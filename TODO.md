@@ -5,7 +5,6 @@
 
 * 0.1
     * ocamldoc
-    * OASIS
 
 * later
     * more complete and compliant stdlib and tests
