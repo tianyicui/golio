@@ -12,10 +12,12 @@
     * OASIS
 
 * later
+    * Use `Event.select` to implement a high-perf `select` macro
     * A global symbol table (using Weak)
-    * refactor quasiquote
-    * better exception: where the error is at
     * user-defined macro
+    * refactor `quasiquote`
+    * `cond`, `case`, `and`, `or`
+    * better exception: where the error is
     * vector
     * `call-with-current-continuation` and `dynaic-wind`?
     * why even `l=1024K` (originally `l=64K` is fine) will cause stack overflow in `(factorial 10)`?
