@@ -126,6 +126,10 @@ let list_func param =
   list_ param
 ;;
 
+let force value =
+  Promise.force (unpack_promise value)
+;;
+
 let eqv a b =
   match a, b with
     | Sexp x, Sexp y ->
@@ -301,6 +305,8 @@ let prim_functions =
       "cdr", unary_op cdr;
       "cons", binary_op cons;
       "list", list_func;
+
+      "force", unary_op force;
 
       "eqv?", bool_any_binop eqv;
       "eq?", bool_any_binop eq;

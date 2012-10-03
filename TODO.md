@@ -6,15 +6,14 @@
 
 * 0.1
     * add `golio_test.ml`...
-    * A global symbol table (using Weak)
     * more complete and compliant stdlib and tests
         * more I/O functions
         * `eval`
-        * `delay` and `force`
     * ocamldoc
     * OASIS
 
 * later
+    * A global symbol table (using Weak)
     * refactor quasiquote
     * better exception: where the error is at
     * user-defined macro

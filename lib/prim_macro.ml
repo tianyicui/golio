@@ -249,6 +249,13 @@ and unquote ?(splicing=false) level env params =
       | _ -> arg_count_mismatch "1" (L.length params)
 ;;
 
+let delay env params =
+  match params with
+    | [param] ->
+        env, Promise (Promise.create (fun () -> snd (Eval.eval env param)))
+    | _ -> arg_count_mismatch "1" (L.length params)
+;;
+
 let lambda env params =
   env, user_func (build_func env params)
 ;;
@@ -290,6 +297,7 @@ let prim_macros =
     "letrec", letrec;
     "let*", let_star;
     "quasiquote", quasiquote 1;
+    "delay", delay;
     "lambda", lambda;
     "load", load;
     "go", go;

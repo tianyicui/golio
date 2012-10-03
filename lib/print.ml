@@ -60,6 +60,12 @@ and print_port port =
 and print_chan chan =
   sprintf "#<chan:%i>" chan.id
 
+and print_promise promise =
+  if Promise.is_val promise then
+    sprintf "#<promise!%s>" (print_value (Promise.force promise))
+  else
+    "#<promise>"
+
 and print_value value =
   match value with
     | Sexp sexp -> print_sexp sexp
@@ -67,9 +73,9 @@ and print_value value =
     | Macro macro -> print_macro macro
     | Port port -> print_port port
     | Chan chan -> print_chan chan
+    | Promise promise -> print_promise promise
     | EofObject -> "#<eof>"
-    | Undefined ->
-        failwith "print_value: should not print Undefined"
+    | Undefined -> "#<undefined>"
     | Thunk _ ->
         failwith "print_value: should not print Thunk"
 ;;

@@ -61,6 +61,8 @@ let _ =
   test_arg_count_mismatch "(set! x 1 2)" "2" 3;
   test_arg_count_mismatch "(quasiquote (x) 1)" "1" 2;
   test_arg_count_mismatch "`((unquote (f 1) 2))" "1" 2;
+  test_arg_count_mismatch "(delay)" "1" 0;
+  test_arg_count_mismatch "(delay 1 2)" "1" 2;
   test_arg_count_mismatch "(load \"file1\" \"file2\")" "1" 2;
 
   test_arg_type_mismatch "(car 1)" "pair" (number 1);
@@ -75,6 +77,7 @@ let _ =
   test_arg_type_mismatch "(send 1 2)" "chan" (number 1);
   test_arg_type_mismatch "(cons 1 . 2)" "atom or list"
     (dotted_list [symbol "cons"; number 1] (number 2));
+  test_arg_type_mismatch "(force 1)" "promise" (number 1);
 
   test_arg_count_mismatch "(quote)" "1" 0;
   test_arg_count_mismatch "(quote 1 2)" "1" 2;

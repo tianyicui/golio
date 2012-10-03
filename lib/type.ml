@@ -10,6 +10,7 @@ type value =
   | Macro of macro
   | Port of port
   | Chan of chan
+  | Promise of promise
   | EofObject
   | Undefined
   | Thunk of user_func * value list
@@ -28,6 +29,8 @@ and macro =
 and port =
   | InputPort of string * Lexing.lexbuf * in_channel
   | OutputPort of string * out_channel
+and promise =
+  value Lazy.t
 and chan = {
   id: int;
   channel: value Event.channel;
@@ -181,4 +184,9 @@ let unpack_chan value =
   match value with
     | Chan chan -> chan
     | _ -> arg_type_mismatch "chan" value
+;;
+let unpack_promise value =
+  match value with
+    | Promise promise -> promise
+    | _ -> arg_type_mismatch "promise" value
 ;;
