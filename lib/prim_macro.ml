@@ -309,7 +309,7 @@ let select env params =
                  | _ -> invalid_arg "select: invalid test clause" (* TODO *)
             )
         | Symbol "else" -> Else
-        | _ -> invalid_arg "select: invalid test clause"
+        | _ -> invalid_arg "select: invalid test clause" (* TODO *)
     in
     let compile_action action =
       match action with
@@ -324,7 +324,7 @@ let select env params =
       | List lst ->
           (let sexp_list = L.map unpack_sexp lst in
              match sexp_list with
-               | [] -> invalid_arg "select: empty clause"
+               | [] -> invalid_arg "select: empty clause" (* TODO *)
                | test :: action ->
                    (compile_test test, compile_action action)
              )
@@ -351,21 +351,39 @@ let select env params =
       | ExprList exprs ->
           snd (Eval.eval_all env exprs)
   in
+  let is_blocked =
+    ref false
+  in
+  let blocked () =
+    if not !is_blocked then
+      (is_blocked := true;
+       Runtime.Fiber.blocked ())
+  in
+  let unblocked () =
+    if !is_blocked then
+      (is_blocked := false;
+       Runtime.Fiber.unblocked ())
+  in
   let clauses =
     L.map compile_clause params
   in
-    let rec go lst =
-      match lst with
-        | [] -> (Thread.yield (); go clauses) (* recheck from start *)
-        | (test, action) :: rest ->
-            (match run_test test with
-               | None -> go rest
-               | Some value -> run_action action value
-            )
-    in
-      if [] = clauses then
-        invalid_arg "select: no clause"
-      else
+  let rec go lst =
+    match lst with
+      | [] ->
+          (blocked ();
+           Thread.yield ();
+           go clauses)
+      | (test, action) :: rest ->
+          (match run_test test with
+             | None -> go rest
+             | Some value ->
+                 (unblocked ();
+                  run_action action value)
+          )
+  in
+    if [] = clauses then
+      invalid_arg "select: no clause" (* TODO *)
+    else
         env, (go clauses)
 ;;
 

@@ -1,7 +1,6 @@
 * current
     * continuous refactor
     * GOROUTINES AND CHANNELS!
-        * `select`
         * more and more tests
 
 * 0.1
