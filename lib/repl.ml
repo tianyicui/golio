@@ -23,7 +23,8 @@ let repl conf =
     let parse () = Parser.parse Lexer.tokens lb in
     let rec go env =
       let open Printf in
-        if conf.interactive then (fprintf out_c "> "; flush out_c);
+        if conf.interactive then
+          fprintf out_c "> %!";
         match parse () with
           | None -> ()
           | Some sexp ->
