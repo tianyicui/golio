@@ -278,11 +278,19 @@ let load env params =
     | _ -> arg_count_mismatch "1" (L.length params)
 ;;
 
-let go env param =
+let eval env params =
+  match params with
+    | [param] ->
+        let env', arg = Eval.eval env param in
+          Eval.eval env' (unpack_sexp arg)
+    | _ -> arg_count_mismatch "1" (L.length params)
+;;
+
+let go env params =
   L.iter
     (fun sexp ->
        Runtime.Fiber.create (Eval.eval env) sexp)
-    param;
+    params;
   env, Void
 ;;
 
@@ -401,6 +409,7 @@ let prim_macros =
     "delay", delay;
     "lambda", lambda;
     "load", load;
+    "eval", eval;
     "go", go;
     "select", select;
   ]

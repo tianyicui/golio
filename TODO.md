@@ -4,7 +4,6 @@
         * more and more tests
 
 * 0.1
-    * `eval`
     * ocamldoc
     * OASIS
 
@@ -12,6 +11,7 @@
     * more complete and compliant stdlib and tests
         * more I/O functions
         * see comments in `stdlib.scm`
+    * audit correct usage of `top_level` in macro
     * Use `Event.select` to implement a high-perf `select` macro
     * A global symbol table (using Weak)
     * user-defined macro

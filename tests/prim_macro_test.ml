@@ -116,4 +116,7 @@ let _ =
       test (Printf.sprintf "(load %S) x y" temp_file) "loaded\nok";
   end;
 
+  test "(eval '(* 7 3))" "21";
+  test "(let ((f (eval '(lambda (f x) (f x x))))) (f + 10))" "20";
+
   prerr_string "All passed!\n"
