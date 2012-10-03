@@ -10,6 +10,7 @@ Prim_macro
 Prim_env
 Port
 Chan
+Promise
 
 Runtime
 Eval

@@ -4,14 +4,14 @@
         * more and more tests
 
 * 0.1
-    * add `golio_test.ml`...
-    * more complete and compliant stdlib and tests
-        * more I/O functions
-        * `eval`
+    * `eval`
     * ocamldoc
     * OASIS
 
 * later
+    * more complete and compliant stdlib and tests
+        * more I/O functions
+        * see comments in `stdlib.scm`
     * Use `Event.select` to implement a high-perf `select` macro
     * A global symbol table (using Weak)
     * user-defined macro
