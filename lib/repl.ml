@@ -56,6 +56,6 @@ let repl conf =
       in
         if final_exn <> Normal_exit then
           (if conf.print_exn then
-             prerr_endline(Print.print_exn final_exn);
+             prerr_endline (Print.print_exn final_exn);
            raise final_exn)
 ;;

@@ -50,9 +50,6 @@ let _ =
   test "(cons 'a '(b . c))" "(a b . c)";
   test "(cons 'a 'b)" "(a . b)";
   test "(cons '() '())" "(())";
-  test "(list)" "()";
-  test "(list 1 2 3)" "(1 2 3)";
-  test "(list (+ 1 2) 3)" "(3 3)";
 
   test "(eqv? 'a 'a)" "#t";
   test "(eqv? 'a 'b)" "#f";

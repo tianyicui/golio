@@ -125,9 +125,6 @@ let cons hd tl =
     | _, Sexp (DottedList (xs, x)) -> dotted_list (hd :: xs) x
     | _ -> dotted_list [hd] tl
 ;;
-let list_func param =
-  list_ param
-;;
 
 let force value =
   Promise.force (unpack_promise value)
@@ -307,7 +304,6 @@ let prim_functions =
       "car", unary_op car;
       "cdr", unary_op cdr;
       "cons", binary_op cons;
-      "list", list_func;
 
       "force", unary_op force;
 
