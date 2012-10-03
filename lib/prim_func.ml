@@ -5,10 +5,13 @@ let binary_op op params =
     | [x; y] -> op x y
     | _ -> arg_count_mismatch "2" (L.length params)
 ;;
-let num_binop op params =
-  match (L.map unpack_num params) with
-    | hd :: tl -> number (L.fold_left op hd tl)
-    | _ -> arg_count_mismatch "1+" (L.length params)
+let num_binop op init params =
+  number (
+    match (L.map unpack_num params) with
+      | [x] -> op init x
+      | hd :: tl -> L.fold_left op hd tl
+      | _ -> arg_count_mismatch "1+" (L.length params)
+  )
 ;;
 let num_fold_op op init params =
   number (L.fold_left op init (L.map unpack_num params))
@@ -265,10 +268,10 @@ let close_chan chan =
 let prim_functions =
     [
       "+", num_fold_op (+) 0;
-      "-", num_binop (-);
+      "-", num_binop (-) 0;
       "*", num_fold_op ( * ) 1;
-      "/", num_binop (/);
-      "%", num_binop (mod);
+      "/", num_binop (/) 1;
+      "%", num_binop (mod) 0;
 
       "=", num_bool_binop (==);
       "<", num_bool_binop (<);

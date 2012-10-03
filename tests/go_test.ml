@@ -68,4 +68,11 @@ let _ =
   test_exn "(define ch (make-chan)) (go (/ 1 0) (begin (sleep 200) x)) (send ch 1)"
     (Repl_exn [Division_by_zero; Lisp_error (UnboundVar "x"); Dead_lock]);
 
+  test "(define ch (make-chan)) (select ((receive ch) 1) ((send ch 2) 2) (else 3))" "3";
+  test "(define ch (make-chan)) (go (send ch 42)) (sleep 20) (select ((receive ch) 1) ((send ch 2) 2) (else 3))" "1";
+  test "(define ch (make-chan)) (go (send ch 42)) (sleep 20) (select ((receive ch)) ((send ch 2) 2) (else 3))" "42";
+  test "(define ch (make-chan)) (go (receive ch)) (sleep 20) (select ((receive ch) 1) ((send ch 2) 2) (else 3))" "2";
+  test "(define ch (make-chan)) (go (send ch 42)) (sleep 20) (select ((receive ch) => (lambda (x) (+ x x))) ((send ch 2) 2) (else 3))" "84";
+  test "(define ch (make-chan)) (go (send ch 42)) (sleep 20) (select ((receive ch) => -) ((send ch 2) 2) (else 3))" "-42";
+
   prerr_string "All passed!\n"

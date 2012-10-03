@@ -286,6 +286,89 @@ let go env param =
   env, Void
 ;;
 
+type select_test =
+  | Send of chan * value
+  | Receive of chan
+  | Else
+type select_action =
+  | Apply of sexp
+  | ExprList of sexp list
+  | NoneAction
+let select env params =
+  let compile_clause sexp =
+    let compile_test test =
+      match test with
+        | List lst ->
+            (let sexp_list = L.map unpack_sexp lst in
+               match sexp_list with
+                 | [Symbol "send"; chan; value] ->
+                     Send (unpack_chan (snd (Eval.eval env chan)),
+                           snd (Eval.eval env chan))
+                 | [Symbol "receive"; chan] ->
+                     Receive (unpack_chan (snd (Eval.eval env chan)))
+                 | _ -> invalid_arg "select: invalid test clause" (* TODO *)
+            )
+        | Symbol "else" -> Else
+        | _ -> invalid_arg "select: invalid test clause"
+    in
+    let compile_action action =
+      match action with
+        | [] ->
+            NoneAction
+        | [Symbol "=>"; func] ->
+            Apply func
+        | _ ->
+            ExprList action
+    in
+    match sexp with
+      | List lst ->
+          (let sexp_list = L.map unpack_sexp lst in
+             match sexp_list with
+               | [] -> invalid_arg "select: empty clause"
+               | test :: action ->
+                   (compile_test test, compile_action action)
+             )
+      | _ -> arg_type_mismatch "list" (Sexp sexp)
+  in
+  let run_test test =
+    match test with
+      | Send (chan, value) ->
+          if (Chan.unblocked_send chan value) then
+            Some Void
+          else
+            None
+      | Receive chan ->
+          Chan.unblocked_receive chan
+      | Else ->
+          Some Void
+  in
+  let run_action action value =
+    match action with
+      | NoneAction ->
+          value
+      | Apply sexp ->
+          Prim_func.apply [snd(Eval.eval env sexp); list_ [value]]
+      | ExprList exprs ->
+          snd (Eval.eval_all env exprs)
+  in
+  let clauses =
+    L.map compile_clause params
+  in
+    let rec go lst =
+      match lst with
+        | [] -> (Thread.yield (); go clauses) (* recheck from start *)
+        | (test, action) :: rest ->
+            (match run_test test with
+               | None -> go rest
+               | Some value -> run_action action value
+            )
+    in
+      if [] = clauses then
+        invalid_arg "select: no clause"
+      else
+        env, (go clauses)
+;;
+
 let prim_macros =
   [
     "quote", quote;
@@ -301,5 +384,6 @@ let prim_macros =
     "lambda", lambda;
     "load", load;
     "go", go;
+    "select", select;
   ]
 ;;
