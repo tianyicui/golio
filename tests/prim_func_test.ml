@@ -84,6 +84,8 @@ let _ =
   test "(write 5)" "5";
   test "(write \"\\n\")" "\"\\n\"";
   test "(write '(a b c) stdout)" "(a b c)";
+  test_exn "(write (write 1))"
+    (Failure "print_value: should not print Void");
 
   test "(newline) (write 1)" "\n1";
   test "(newline stdout) (write 1 stdout)" "\n1";

@@ -29,7 +29,9 @@ let run_str ?(print_exn=true) str =
 ;;
 
 let test str rst =
-  assert (run_str str = rst)
+  let got = run_str str in
+    if got <> rst then
+      failwith (Printf.sprintf "expected %S, got %S" rst got)
 ;;
 
 let test_exn str expected =

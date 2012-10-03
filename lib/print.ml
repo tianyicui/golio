@@ -62,7 +62,12 @@ and print_chan chan =
 
 and print_promise promise =
   if Promise.is_val promise then
-    sprintf "#<promise!%s>" (print_value (Promise.force promise))
+    (let value = Promise.force promise in
+     let str = match value with
+       | Void -> "#<void>"
+       | _ -> print_value value
+     in
+       sprintf "#<promise!%s>" str)
   else
     "#<promise>"
 
@@ -75,7 +80,8 @@ and print_value value =
     | Chan chan -> print_chan chan
     | Promise promise -> print_promise promise
     | EofObject -> "#<eof>"
-    | Void -> "#<void>"
+    | Void ->
+        failwith "print_value: should not print Void"
     | Thunk _ ->
         failwith "print_value: should not print Thunk"
 ;;
