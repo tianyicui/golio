@@ -1,9 +1,10 @@
 * current
     * continuous refactor
     * GOROUTINES AND CHANNELS!
-        * more and more tests
+        * more and more tests, esp with `select`
 
 * 0.1
+    * `select` with closed chan may cause problem
     * ocamldoc
 
 * later

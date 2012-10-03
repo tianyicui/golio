@@ -6,6 +6,7 @@ let _ =
   let test_closed_chan str =
     try ignore (Test.run_str ~print_exn:false str) with
       | Lisp_error (ClosedChan _) -> ()
+      | Repl_exn (Lisp_error (ClosedChan _) :: _) -> ()
   in
 
   let test_time str time rst =
@@ -20,6 +21,7 @@ let _ =
   test "(define ch (make-chan)) (go (write (receive ch)) (send ch 42))" "42";
   test_closed_chan "(define ch (make-chan)) (close-chan ch) (close-chan ch)";
   test_closed_chan "(define ch (make-chan)) (close-chan ch) (send ch 42)";
+  test_closed_chan "(define ch (make-chan)) (go (send ch 42)) (sleep 200) (close-chan ch)";
   test "(define ch (make-chan 1)) (send ch 42) (close-chan ch) (receive ch) (eof-object? (receive ch))" "42\n#t";
 
   test_time

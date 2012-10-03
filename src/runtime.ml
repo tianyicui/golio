@@ -92,6 +92,13 @@ struct
       (Event.sync (Event.receive sync_channel);
        (try ignore (func arg) with
           | expn ->
+              (* TODO: send backtrace too
+              prerr_endline
+                (Printf.sprintf "%s in thread #%i:\n%s"
+                   (Print.print_exn expn)
+                   (Thread.id (Thread.self ()))
+                   (Printexc.get_backtrace ()));
+               *)
               Event.sync (Event.send Repl.exn_channel expn));
        ended ())
     in
