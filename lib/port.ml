@@ -1,11 +1,11 @@
 open Type
 
 let stdin =
-  ref Undefined
+  ref Void
 ;;
 
 let stdout =
-  ref Undefined
+  ref Void
 ;;
 
 let prim_ports () =

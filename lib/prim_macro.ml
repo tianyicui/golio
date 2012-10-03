@@ -21,7 +21,7 @@ let if_ env params =
       | env', Sexp (Bool false) ->
           (match optional_alt with
              | Some alt -> Eval.eval ~tail:true env' alt
-             | None -> env', Undefined
+             | None -> env', Void
           )
       | env', _ -> Eval.eval ~tail:true env' conseq
 ;;
@@ -55,7 +55,7 @@ let build_func env params =
 let self_ref_func func name =
   let func' = {
     func with
-        closure = Env.def_local name Undefined func.closure
+        closure = Env.def_local name Void func.closure
   } in
   let rst = user_func func' in
     (Env.set_var name rst func'.closure; rst)
@@ -86,7 +86,7 @@ let define env params =
        (Env.def_global var value; env')
      else
        Env.def_local var value env'
-    ), Undefined
+    ), Void
 ;;
 
 let set env params =
@@ -94,7 +94,7 @@ let set env params =
     | [Symbol var; expr] ->
         let env', value = Eval.eval env expr in
           (Env.set_var var value env;
-           env, Undefined)
+           env, Void)
     | [x; _] -> arg_type_mismatch "symbol" (Sexp x)
     | _ -> arg_count_mismatch "2" (L.length params)
 ;;
@@ -105,7 +105,7 @@ let let_to_apply ?named is_rec env params =
       (fun e v ->
          if (Env.is_bound v e)
          then Env.def_local v (Env.get_var v e) e
-         else Env.def_local v Undefined e
+         else Env.def_local v Void e
       )
       env
       vars
@@ -274,7 +274,7 @@ let load env params =
   match params with
     | [param] ->
         let env', filename = Eval.eval env param in
-          load_file env' (unpack_str filename), Undefined
+          load_file env' (unpack_str filename), Void
     | _ -> arg_count_mismatch "1" (L.length params)
 ;;
 
@@ -283,7 +283,7 @@ let go env param =
     (fun sexp ->
        Runtime.Fiber.create (Eval.eval env) sexp)
     param;
-  env, Undefined
+  env, Void
 ;;
 
 let prim_macros =

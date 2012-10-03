@@ -29,7 +29,7 @@ let repl conf =
           | Some sexp ->
               let env', rst = Eval.eval env sexp in
                 begin match rst with
-                  | Undefined -> ()
+                  | Void -> ()
                   | _ ->
                       if conf.print_result then
                         fprintf out_c "%s\n" (Print.print_value rst)

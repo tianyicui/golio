@@ -175,7 +175,7 @@ let write params =
         in
           output_string out_c (Print.print_value obj);
           flush out_c;
-          Undefined
+          Void
 ;;
 let newline params =
   let out_c =
@@ -188,7 +188,7 @@ let newline params =
   in
     output_string out_c "\n";
     flush out_c;
-    Undefined
+    Void
 ;;
 let open_input_file file =
   let in_c = open_in file in
@@ -199,11 +199,11 @@ let open_output_file file =
 ;;
 let close_input_port arg =
   close_in (unpack_input_port_for_channel arg);
-  Undefined
+  Void
 ;;
 let close_output_port arg =
   close_out (unpack_output_port arg);
-  Undefined
+  Void
 ;;
 
 let apply params =
@@ -233,12 +233,12 @@ let sleep value =
     (float_of_int (unpack_num value)) /. 1000.0
   in
     Thread.delay time_in_ms;
-    Undefined
+    Void
 ;;
 
 let yield params =
   match params with
-    | [] -> Thread.yield (); Undefined
+    | [] -> Thread.yield (); Void
     | _ -> arg_count_mismatch "0" (L.length params)
 ;;
 let make_chan params =
@@ -255,11 +255,11 @@ let receive chan =
 ;;
 let send chan value =
   Chan.send (unpack_chan chan) value;
-  Undefined
+  Void
 ;;
 let close_chan chan =
   Chan.close (unpack_chan chan);
-  Undefined
+  Void
 ;;
 
 let prim_functions =

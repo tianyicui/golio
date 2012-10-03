@@ -75,7 +75,7 @@ and print_value value =
     | Chan chan -> print_chan chan
     | Promise promise -> print_promise promise
     | EofObject -> "#<eof>"
-    | Undefined -> "#<undefined>"
+    | Void -> "#<void>"
     | Thunk _ ->
         failwith "print_value: should not print Thunk"
 ;;

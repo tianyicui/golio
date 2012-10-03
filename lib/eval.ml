@@ -36,7 +36,7 @@ and map env sexp_list =
 
 and eval_all env sexp_list =
   match sexp_list with
-    | [] -> env, Undefined
+    | [] -> env, Void
     | [sexp] -> eval ~tail:true env sexp
     | x :: xs ->
         let env', _ = eval env x in
@@ -58,7 +58,7 @@ and eval ?(tail=false) env sexp =
                           macro env' tl
                       | _ -> not_applicable id
                    )
-             | [] -> not_applicable Undefined
+             | [] -> not_applicable Void
           )
       | DottedList _ -> arg_type_mismatch "atom or list" (Sexp sexp)
       | sexp -> env, Sexp sexp

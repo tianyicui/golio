@@ -12,7 +12,7 @@ type value =
   | Chan of chan
   | Promise of promise
   | EofObject
-  | Undefined
+  | Void
   | Thunk of user_func * value list
 and sexp =
   | Number of int
