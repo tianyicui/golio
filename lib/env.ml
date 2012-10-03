@@ -36,9 +36,9 @@ let def_local var value env =
 ;;
 
 let def_global var value =
-  Mutex.lock glb_mutex;
-  H.add globals var (ref value);
-  Mutex.unlock glb_mutex
+  with_mutex glb_mutex
+    (fun () ->
+       H.add globals var (ref value))
 ;;
 
 let set_var var value env =
@@ -61,7 +61,7 @@ let bind_globals var_assoc =
 ;;
 
 let init () =
-  Mutex.lock glb_mutex;
-  H.clear globals;
-  Mutex.unlock glb_mutex
+  with_mutex glb_mutex
+    (fun () ->
+       H.clear globals)
 ;;

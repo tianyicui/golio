@@ -26,11 +26,11 @@ struct
     Mutex.create ()
   ;;
   let gen () =
-    Mutex.lock mutex;
-    let id = !n_total in
-      n_total := id + 1;
-      Mutex.unlock mutex;
-      id
+    with_mutex mutex
+      (fun () ->
+         let id = !n_total in
+           n_total := id + 1;
+           id)
   ;;
 end
 
@@ -63,26 +63,28 @@ struct
                     (if (!n_total == 0) then Normal_exit else Dead_lock))
   ;;
   let started () =
-    Mutex.lock mutex;
-    n_total := !n_total + 1;
-    Mutex.unlock mutex;
+    with_mutex mutex
+      (fun () ->
+         n_total := !n_total + 1)
   ;;
   let ended () =
-    Mutex.lock mutex;
-    n_total := !n_total - 1;
-    check_terminal ();
-    Mutex.unlock mutex;
+    with_mutex mutex
+      (fun () ->
+         n_total := !n_total - 1;
+         check_terminal ();
+      )
   ;;
   let blocked () =
-    Mutex.lock mutex;
-    n_blocked := !n_blocked + 1;
-    check_terminal ();
-    Mutex.unlock mutex;
+    with_mutex mutex
+      (fun () ->
+         n_blocked := !n_blocked + 1;
+         check_terminal ();
+      )
   ;;
   let unblocked () =
-    Mutex.lock mutex;
-    n_blocked := !n_blocked - 1;
-    Mutex.unlock mutex;
+    with_mutex mutex
+      (fun () ->
+         n_blocked := !n_blocked - 1)
   ;;
   let create func arg =
     let sync_channel = Event.new_channel () in

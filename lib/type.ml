@@ -190,3 +190,10 @@ let unpack_promise value =
     | Promise promise -> promise
     | _ -> arg_type_mismatch "promise" value
 ;;
+
+let with_mutex mutex func =
+  Mutex.lock mutex;
+  let rst = func () in
+    Mutex.unlock mutex;
+    rst
+;;
