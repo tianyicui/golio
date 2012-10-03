@@ -13,6 +13,7 @@ let create capacity = {
 }
 ;;
 
+
 let maintain_clients_count chan delta =
   with_mutex chan.clients_count_mutex
     (fun () ->
@@ -26,7 +27,7 @@ let maintain_clients_count chan delta =
     )
 ;;
 
-let send chan value =
+let unblocked_send chan value =
   with_mutex chan.closed_flag_mutex
     (fun () ->
        if chan.closed_flag then closed_chan chan;
@@ -35,26 +36,45 @@ let send chan value =
   Mutex.lock chan.buffer_mutex;
   if Q.length chan.buffer < chan.capacity then
     (Q.push value chan.buffer;
-  Mutex.unlock chan.buffer_mutex)
+  Mutex.unlock chan.buffer_mutex;
+    true)
   else
     (Mutex.unlock chan.buffer_mutex;
-     maintain_clients_count chan 1;
+     if None <> Event.poll (Event.send chan.channel value) then
+       (maintain_clients_count chan 1;
+        true)
+     else false)
+;;
+
+let send chan value =
+  if not (unblocked_send chan value) then
+    (maintain_clients_count chan 1;
      Event.sync (Event.send chan.channel value))
 ;;
 
-let receive chan =
+let unblocked_receive chan =
   Mutex.lock chan.buffer_mutex;
   if not (Q.is_empty chan.buffer) then
     (let rst = Q.pop chan.buffer in
        Mutex.unlock chan.buffer_mutex;
-       rst)
+       Some rst)
   else
     (Mutex.unlock chan.buffer_mutex;
      if chan.closed_flag then
-       EofObject
+       Some EofObject
      else
-       (maintain_clients_count chan (-1);
-        Event.sync (Event.receive chan.channel)))
+       (let rst = Event.poll (Event.receive chan.channel) in
+          if None <> rst then
+             maintain_clients_count chan (-1);
+          rst))
+;;
+
+let receive chan =
+  match unblocked_receive chan with
+    | Some value -> value
+    | None ->
+        maintain_clients_count chan (-1);
+        Event.sync (Event.receive chan.channel)
 ;;
 
 let close chan =
