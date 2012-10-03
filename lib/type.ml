@@ -32,6 +32,8 @@ and chan = {
   id: int;
   channel: value Event.channel;
   capacity: int;
+  mutable closed_flag: bool;
+  closed_flag_mutex: Mutex.t;
   buffer: value Q.t;
   buffer_mutex: Mutex.t;
   (* When clients_count > 0, its value represents the number of senders
@@ -58,6 +60,7 @@ type lisp_error =
   | ArgTypeMismatch of arg_type_mismatch (* TODO *)
   | NotApplicable of value
   | UnboundVar of string
+  | ClosedChan of chan
 and arg_count_mismatch = {
   (* arg_count_expected could be like "0", "1", "2+" "1 or 2" *)
   arg_count_expected : string;
@@ -124,6 +127,9 @@ let not_applicable value =
 ;;
 let unbound_var var =
   lisp_error (UnboundVar var)
+;;
+let closed_chan chan =
+  lisp_error (ClosedChan chan)
 ;;
 
 let unpack_sexp value =

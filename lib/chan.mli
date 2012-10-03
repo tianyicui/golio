@@ -11,3 +11,7 @@ val send :
 val receive :
   chan -> value
 ;;
+
+val close :
+  chan -> unit
+;;

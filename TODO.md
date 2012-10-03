@@ -1,7 +1,7 @@
 * current
     * continuous refactor
     * GOROUTINES AND CHANNELS!
-        * `yield` and `select`
+        * `select`
         * more and more tests
 
 * 0.1

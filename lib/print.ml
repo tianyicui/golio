@@ -95,6 +95,8 @@ let rec print_exn expn =
                sprintf "NotApplicable: %s" (print_value value)
            | UnboundVar var ->
                sprintf "UnboundVar: %s" var
+           | ClosedChan chan ->
+               sprintf "ClosedChan: %s" (print_chan chan)
         )
     | Dead_lock -> "Dead_lock"
     | Repl_exn lst ->

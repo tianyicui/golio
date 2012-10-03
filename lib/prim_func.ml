@@ -232,6 +232,11 @@ let sleep value =
     Undefined
 ;;
 
+let yield params =
+  match params with
+    | [] -> Thread.yield (); Undefined
+    | _ -> arg_count_mismatch "0" (L.length params)
+;;
 let make_chan params =
   let cap =
     match params with
@@ -246,6 +251,10 @@ let receive chan =
 ;;
 let send chan value =
   Chan.send (unpack_chan chan) value;
+  Undefined
+;;
+let close_chan chan =
+  Chan.close (unpack_chan chan);
   Undefined
 ;;
 
@@ -307,9 +316,11 @@ let prim_functions =
 
       "apply", apply;
 
+      "yield", yield;
       "sleep", unary_op sleep;
       "make-chan", make_chan;
       "receive", unary_op receive;
       "send", binary_op send;
+      "close-chan", unary_op close_chan;
     ]
 ;;
