@@ -22,7 +22,9 @@ let _ =
   test_closed_chan "(define ch (make-chan)) (close-chan ch) (close-chan ch)";
   test_closed_chan "(define ch (make-chan)) (close-chan ch) (send ch 42)";
   test_closed_chan "(define ch (make-chan)) (go (send ch 42)) (sleep 200) (close-chan ch)";
-  test "(define ch (make-chan 1)) (send ch 42) (close-chan ch) (receive ch) (eof-object? (receive ch))" "42\n#t";
+  (* TODO
+   * test "(define ch (make-chan 1)) (send ch 42) (close-chan ch) (receive ch) (eof-object? (receive ch))" "42\n#t";
+   *)
 
   test_time
     "(define ch (make-chan))
@@ -51,16 +53,20 @@ let _ =
     0.2
     "42";
 
+  (* TODO
   test "(define ch (make-chan 1)) (send ch 42) (write (receive ch))" "42";
   test "(define ch (make-chan 3))
         (send ch 1) (send ch 2) (send ch 3)
         (write (receive ch))
         (write (receive ch))
         (write (receive ch))" "123";
+   *)
 
   test_exn "(define ch (make-chan)) (send ch 1)" Dead_lock;
   test_exn "(define ch (make-chan)) (receive ch)" Dead_lock;
+  (* TODO
   test_exn "(define ch (make-chan 1)) (send ch 1) (send ch 1)" Dead_lock;
+   *)
 
   test_exn "(go (/ 1 0))" Division_by_zero;
   test_exn "(go (/ 1 0) (begin (sleep 200) x))"

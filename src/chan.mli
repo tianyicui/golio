@@ -1,7 +1,7 @@
 open Type
 
 val create :
-  int -> chan
+  unit -> chan
 ;;
 
 val send :

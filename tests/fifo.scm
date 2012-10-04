@@ -39,4 +39,6 @@
             (loop (+ i 1)))))
     (receive end)))
 
-(go (asynch-fifo) (sync-fifo))
+(go
+  ;; TODO (asynch-fifo)
+  (sync-fifo))

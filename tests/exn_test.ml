@@ -35,7 +35,8 @@ let _ =
   test_arg_count_mismatch "(write 1 2 3)" "1 or 2" 3;
   test_arg_count_mismatch "(newline 1 2)" "0 or 1" 2;
   test_arg_count_mismatch "(apply min)" "2+" 1;
-  test_arg_count_mismatch "(make-chan 1 2)" "0 or 1" 2;
+  (* TODO make-chan with 1 param *)
+  test_arg_count_mismatch "(make-chan 1 2)" "0" 2;
 
   test_arg_count_mismatch "((lambda () 1) 1)" "0" 1;
   test_arg_count_mismatch "((lambda () 1) 1 2)" "0" 2;
@@ -69,7 +70,7 @@ let _ =
   test_arg_type_mismatch "(cdr 1)" "pair" (number 1);
   test_arg_type_mismatch "(car (read))" "sexp" EofObject;
   test_arg_type_mismatch "(apply 1 2)" "procedure" (number 1);
-  test_arg_type_mismatch "(make-chan 'a)" "number" (symbol "a");
+  (* TODO test_arg_type_mismatch "(make-chan 'a)" "number" (symbol "a"); *)
   test_arg_type_mismatch "(symbol->string \"a\")" "symbol" (string_ "a");
   test_arg_type_mismatch "(&& 1 'a)" "bool" (number 1);
   test_arg_type_mismatch "(load 'file)" "string" (symbol "file");

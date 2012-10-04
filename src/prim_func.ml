@@ -242,13 +242,9 @@ let yield params =
     | _ -> arg_count_mismatch "0" (L.length params)
 ;;
 let make_chan params =
-  let cap =
-    match params with
-      | [] -> 0
-      | [num] -> unpack_num num
-      | _ -> arg_count_mismatch "0 or 1" (L.length params)
-  in
-    Chan (Chan.create cap)
+  match params with
+    | [] -> (Chan (Chan.create ()))
+    | _ -> arg_count_mismatch "0" (L.length params)
 ;;
 let receive chan =
   Chan.receive (unpack_chan chan)

@@ -4,8 +4,10 @@
         * more and more tests, esp with `select`
 
 * 0.1
-    * `select` with closed chan may cause problem
     * ocamldoc
+
+* 0.2
+    * buffered chan
 
 * later
     * more complete and compliant stdlib and tests
