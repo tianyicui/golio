@@ -1,5 +1,6 @@
 open Type
 open Test
+include Common
 
 let test_arg_count_mismatch str expected got =
   test_exn str

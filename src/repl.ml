@@ -1,16 +1,6 @@
 open Type
 include Common
 
-type repl_config = {
-  interactive : bool;
-  print_result : bool;
-  print_exn : bool;
-  lexbuf : Lexing.lexbuf option;
-  stdin : in_channel;
-  stdout : out_channel;
-}
-;;
-
 let repl conf =
   Runtime.init ();
   let in_c = conf.stdin in

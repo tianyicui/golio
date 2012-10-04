@@ -1,4 +1,4 @@
-open Repl
+open Type
 
 let _ =
   let usage () =
@@ -9,7 +9,7 @@ let _ =
       | [| _; "--help" |] ->
           usage ()
       | [| _; "-c" ; sexp |] ->
-          repl {
+          Repl.repl {
             stdin;
             stdout;
             lexbuf = Some (Lexing.from_string sexp);
@@ -18,7 +18,7 @@ let _ =
             print_exn = true;
           }
       | [| _; "-" |] ->
-          repl {
+          Repl.repl {
             stdin;
             stdout;
             lexbuf = None;
@@ -27,7 +27,7 @@ let _ =
             print_exn = true;
           }
       | [| _; filename |] ->
-          repl {
+          Repl.repl {
             stdin = open_in filename;
             stdout;
             lexbuf = None;
@@ -36,7 +36,7 @@ let _ =
             print_exn = true;
           }
       | [| _ |] ->
-          repl {
+          Repl.repl {
             stdin;
             stdout;
             lexbuf = None;

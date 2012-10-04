@@ -70,3 +70,13 @@ exception Dead_lock
 exception Normal_exit
 exception Repl_exn of exn list
 ;;
+
+type repl_config = {
+  interactive : bool;
+  print_result : bool;
+  print_exn : bool;
+  lexbuf : Lexing.lexbuf option;
+  stdin : in_channel;
+  stdout : out_channel;
+}
+;;
