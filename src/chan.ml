@@ -5,83 +5,101 @@ let create capacity = {
   channel = Event.new_channel ();
   capacity = capacity;
   closed_flag = false;
-  closed_flag_mutex = Mutex.create ();
   buffer = Q.create ();
-  buffer_mutex = Mutex.create ();
   clients_count = 0;
-  clients_count_mutex = Mutex.create ();
+  mutex = Mutex.create ();
 }
 ;;
 
 
 let maintain_clients_count chan delta =
-  with_mutex chan.clients_count_mutex
-    (fun () ->
-       let will_block = (delta * chan.clients_count >= 0) in
-         (if will_block then
-            (chan.clients_count <- chan.clients_count + delta;
-             Runtime.Fiber.blocked ())
-          else
-            (chan.clients_count <- chan.clients_count + delta;
-             Runtime.Fiber.unblocked ()));
-    )
+  let will_block = (delta * chan.clients_count >= 0) in
+    (if will_block then
+       (chan.clients_count <- chan.clients_count + delta;
+        Runtime.Fiber.blocked ())
+     else
+       (chan.clients_count <- chan.clients_count + delta;
+        Runtime.Fiber.unblocked ()));
+;;
+
+let unblocked_send_impl chan value =
+  if Q.length chan.buffer < chan.capacity then
+    (Q.push value chan.buffer;
+     true)
+  else if None <> Event.poll (Event.send chan.channel value) then
+    (maintain_clients_count chan 1;
+     true)
+  else
+    false
 ;;
 
 let unblocked_send chan value =
-  Mutex.lock chan.buffer_mutex;
-  if Q.length chan.buffer < chan.capacity then
-    (Q.push value chan.buffer;
-     Mutex.unlock chan.buffer_mutex;
-     true)
+  Mutex.lock chan.mutex;
+  if chan.closed_flag then
+    (Mutex.unlock chan.mutex;
+     false)
   else
-    (Mutex.unlock chan.buffer_mutex;
-     if None <> Event.poll (Event.send chan.channel value) then
-       (maintain_clients_count chan 1;
-        true)
-     else false)
+    let rst = unblocked_send_impl chan value in
+      Mutex.unlock chan.mutex;
+      rst
 ;;
 
 let send chan value =
-  Mutex.lock chan.closed_flag_mutex;
+  prerr_endline
+    (Printf.sprintf "#%i send <%i> v%s"
+       (Thread.id (Thread.self ())) chan.id (Print.print_value value));
+  Mutex.lock chan.mutex;
   if chan.closed_flag then
-    (Mutex.unlock chan.closed_flag_mutex;
+    (Mutex.unlock chan.mutex;
      closed_chan chan);
-  if unblocked_send chan value then
-    Mutex.unlock chan.closed_flag_mutex
+  if unblocked_send_impl chan value then
+    Mutex.unlock chan.mutex
   else
     (maintain_clients_count chan 1;
-     Mutex.unlock chan.closed_flag_mutex;
+     Mutex.unlock chan.mutex;
      Event.sync (Event.send chan.channel value))
 ;;
 
-let unblocked_receive chan =
-  Mutex.lock chan.buffer_mutex;
+let unblocked_receive_impl chan =
   if not (Q.is_empty chan.buffer) then
-    (let rst = Q.pop chan.buffer in
-       Mutex.unlock chan.buffer_mutex;
-       Some rst)
+    Some (Q.pop chan.buffer)
   else if chan.closed_flag then
     Some EofObject
   else
-    (Mutex.unlock chan.buffer_mutex;
-     let rst = Event.poll (Event.receive chan.channel) in
+    (let rst = Event.poll (Event.receive chan.channel) in
        if None <> rst then
          maintain_clients_count chan (-1);
        rst)
 ;;
 
+let unblocked_receive chan =
+  Mutex.lock chan.mutex;
+  if chan.closed_flag then
+    (Mutex.unlock chan.mutex;
+     None)
+  else
+    let rst = unblocked_receive_impl chan in
+      Mutex.unlock chan.mutex;
+      rst
+;;
+
 let receive chan =
-  Mutex.lock chan.closed_flag_mutex;
-  match unblocked_receive chan with
-    | Some value -> (Mutex.unlock chan.closed_flag_mutex; value)
+  prerr_endline
+    (Printf.sprintf "#%i receive <%i>"
+       (Thread.id (Thread.self ())) chan.id);
+  Mutex.lock chan.mutex;
+  match unblocked_receive_impl chan with
+    | Some value ->
+        (Mutex.unlock chan.mutex;
+         value)
     | None ->
         (maintain_clients_count chan (-1);
-         Mutex.unlock chan.closed_flag_mutex;
+         Mutex.unlock chan.mutex;
          Event.sync (Event.receive chan.channel))
 ;;
 
 let close chan =
-  with_mutex chan.closed_flag_mutex
+  with_mutex chan.mutex
     (fun () ->
        if chan.closed_flag then
          closed_chan chan
@@ -89,14 +107,12 @@ let close chan =
          chan.closed_flag <- true;
        (* After a chan got closed, all fiber waiting to receive from it should
         * be unblocked notified with EofObject *)
-       with_mutex chan.clients_count_mutex
-         (fun () ->
-            if chan.clients_count > 0 then
-              closed_chan chan
-            else
-              for i = 1 to (- chan.clients_count) do
-                Event.sync (Event.send chan.channel EofObject);
-                Runtime.Fiber.unblocked ()
-              done);
+       if chan.clients_count > 0 then
+         closed_chan chan
+       else
+         for i = 1 to (- chan.clients_count) do
+           Event.sync (Event.send chan.channel EofObject);
+           Runtime.Fiber.unblocked ()
+         done
     )
 ;;
