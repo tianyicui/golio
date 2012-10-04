@@ -50,7 +50,7 @@ and user_func = {
 type lisp_error =
   | ParseError (* TODO *)
   | ArgCountMismatch of arg_count_mismatch
-  | ArgTypeMismatch of arg_type_mismatch (* TODO *)
+  | ArgTypeMismatch of arg_type_mismatch
   | NotApplicable of value
   | UnboundVar of string
   | ClosedChan of chan
