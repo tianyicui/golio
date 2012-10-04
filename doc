@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+ocamlbuild -no-links src/golio.docdir/index.html
+open _build/src/golio.docdir/index.html
