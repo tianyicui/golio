@@ -130,6 +130,12 @@ let force value =
   Promise.force (unpack_promise value)
 ;;
 
+let random_integer param =
+  let n = unpack_num param
+  in
+    number (Random.int n)
+;;
+
 let eqv a b =
   match a, b with
     | Sexp x, Sexp y ->
@@ -302,6 +308,8 @@ let prim_functions =
       "cons", binary_op cons;
 
       "force", unary_op force;
+
+      "random-integer", unary_op random_integer;
 
       "eqv?", bool_any_binop eqv;
       "eq?", bool_any_binop eq;

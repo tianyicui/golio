@@ -1,19 +1,17 @@
-* current
-    * continuous refactor
-    * GOROUTINES AND CHANNELS!
-        * more and more tests, esp with `select`
-
 * 0.1
+    * small scope refactor
     * ocamldoc
 
 * 0.2
-    * buffered chan
+    * BUG: when two fibers are using `select` to communicate to each other, they will block forever
+    * FEATURE: dead lock detection in `select`
+    * FEATURE: buffered chan
+    * TASK: audit correct usage of `top_level` in macro
 
 * later
     * more complete and compliant stdlib and tests
         * more I/O functions
         * see comments in `stdlib.scm`
-    * audit correct usage of `top_level` in macro
     * Use `Event.select` to implement a high-perf `select` macro
     * A global symbol table (using Weak)
     * user-defined macro

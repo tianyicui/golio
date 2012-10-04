@@ -359,34 +359,19 @@ let select env params =
       | ExprList exprs ->
           snd (Eval.eval_all env exprs)
   in
-  let is_blocked =
-    ref false
-  in
-  let blocked () =
-    if not !is_blocked then
-      (is_blocked := true;
-       Runtime.Fiber.blocked ())
-  in
-  let unblocked () =
-    if !is_blocked then
-      (is_blocked := false;
-       Runtime.Fiber.unblocked ())
-  in
   let clauses =
     L.map compile_clause params
   in
   let rec go lst =
     match lst with
       | [] ->
-          (blocked ();
-           Thread.yield ();
+          (Thread.yield ();
            go clauses)
       | (test, action) :: rest ->
           (match run_test test with
              | None -> go rest
              | Some value ->
-                 (unblocked ();
-                  run_action action value)
+                  run_action action value
           )
   in
     if [] = clauses then
