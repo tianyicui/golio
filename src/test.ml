@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let run_str ?(print_exn=true) str =
   let temp_in = Runtime.Temp_file.gen () in

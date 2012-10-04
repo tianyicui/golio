@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let globals =
   H.create 1

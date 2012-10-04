@@ -1,4 +1,5 @@
 open Type
+include Common
 
 type repl_config = {
   interactive : bool;

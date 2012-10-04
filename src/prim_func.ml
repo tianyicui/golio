@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let binary_op op params =
   match params with

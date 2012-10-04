@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let prim_env () =
   let map_and_bind f lst =

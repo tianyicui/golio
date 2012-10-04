@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let rec apply func args =
   let params_len = L.length func.params in

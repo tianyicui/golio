@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let sprintf =
   Printf.sprintf

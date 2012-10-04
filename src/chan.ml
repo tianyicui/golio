@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let create () = {
   id = Runtime.Chan_id.gen ();

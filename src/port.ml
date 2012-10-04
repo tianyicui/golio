@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let stdin =
   ref Void

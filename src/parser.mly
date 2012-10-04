@@ -1,5 +1,6 @@
 %{
 open Type
+include Common
 %}
 
 %token LPAREN RPAREN QUOTE DOT QUASIQUOTE UNQUOTE UNQUOTE_SPLICING EOF

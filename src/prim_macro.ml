@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let quote env param =
   match param with

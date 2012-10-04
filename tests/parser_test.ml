@@ -1,4 +1,5 @@
 open Type
+include Common
 
 let _ =
   let parse_str str =

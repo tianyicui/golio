@@ -1,4 +1,5 @@
 open Type
+include Common
 
 module Temp_file =
 struct
