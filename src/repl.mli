@@ -1,4 +1,4 @@
-(** a configurable read-evaluate-print loop *)
+(** a configurable read-eval-print loop *)
 
 open Type
 

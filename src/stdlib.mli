@@ -1,7 +1,8 @@
-(** The stdlib, the goal is as much [R5RS]-compatible as possible *)
+(** The standard library *)
 
-(** it is a [string] instead of a separate [.scm] file is because of simplified
-  * building, packing and install *)
+(** Goal of the stdlib is as much [R5RS]-compatible as possible, with
+  * concurrency support. It is a [string] instead of a separate [.scm] file for
+  * simplified building and packaging *)
 val stdlib :
   string
 ;;
