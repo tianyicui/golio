@@ -40,7 +40,7 @@ and promise =
   value Lazy.t
 
 and chan = {
-  id: int; (** unique chan id *)
+  id: int; (** unique chan id *) (* TODO: rename to `chan_id`? *)
   channel: value Event.channel;
   mutable closed_flag: bool;
   mutable clients_count: int;

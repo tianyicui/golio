@@ -8,13 +8,6 @@ struct
   ;;
 end
 
-module Eval =
-struct
-  let tco =
-    ref true
-  ;;
-end
-
 module Chan_id =
 struct
   let n_total =
@@ -35,6 +28,13 @@ struct
   ;;
 end
 
+module Eval =
+struct
+  let tco =
+    ref true
+  ;;
+end
+
 module Repl =
 struct
   let exn_channel =
@@ -42,6 +42,7 @@ struct
   ;;
 end
 
+(* TODO: seperate out ? *)
 module Fiber =
 struct
   let n_total =
@@ -109,6 +110,7 @@ struct
   ;;
 end
 
+(** TODO: maybe employ dependency injection *)
 let init () =
   Chan_id.init ();
   Fiber.init ();
