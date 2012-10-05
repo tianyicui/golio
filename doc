@@ -2,5 +2,5 @@
 
 set -e
 
-ocamlbuild -no-links -docflags -stars,-hide,Pervasives,-hide,Type src/golio.docdir/index.html
+ocamlbuild -no-links -docflag -t -docflag 'Golio v0.1: Go! Lisp in OCaml' -docflags -stars,-hide,Pervasives,-hide,Type src/golio.docdir/index.html
 open _build/src/golio.docdir/index.html
