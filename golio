@@ -1,6 +1,0 @@
-#!/bin/bash
-
-set -e
-
-ocamlbuild -no-links src/golio.d.byte 1>&2
-OCAMLRUNPARAM=b ledit _build/src/golio.d.byte "$@"

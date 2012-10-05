@@ -10,3 +10,5 @@
 *.native
 *.o
 _build/
+setup.data
+setup.log

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-set -e
-ocamlbuild src/golio.d.cma
-exec utop -init /dev/null golio.d.cma -I _build/src
