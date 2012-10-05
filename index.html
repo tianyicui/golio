@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="GoLio : Go! Lisp in OCaml" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>GoLio</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/tianyicui/golio">View on GitHub</a>
+
+          <h1 id="project_title">GoLio</h1>
+          <h2 id="project_tagline">Go! Lisp in OCaml</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/tianyicui/golio/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/tianyicui/golio/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>GoLio is a Lisp dialect implemented in OCaml. The syntax, semantics and library procedures are a subset of <a href="http://www.schemers.org/Documents/Standards/R5RS/">R5RS</a>, with one important addition: a <a href="http://golang.org/">Go</a>-like concurrency model.</p>
+
+<h2>Yet another Lisp interpreter ...</h2>
+
+<div class="highlight"><pre><span class="nv">&gt;</span> <span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">curry</span> <span class="nv">func</span> <span class="nv">arg1</span><span class="p">)</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">arg</span><span class="p">)</span> <span class="p">(</span><span class="nb">apply </span><span class="nv">func</span> <span class="nv">arg1</span> <span class="p">(</span><span class="nb">list </span><span class="nv">arg</span><span class="p">))))</span>
+<span class="nv">&gt;</span> <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="nf">curry</span> <span class="nv">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">'</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">))</span>
+<span class="p">(</span><span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">)</span> <span class="c1">;; just plain old s-expressions</span>
+
+<span class="nv">&gt;</span> <span class="p">(</span><span class="k">letrec </span><span class="p">((</span><span class="nb">even? </span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">n</span><span class="p">)</span> <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span> <span class="no">#t</span> <span class="p">(</span><span class="nb">odd? </span><span class="p">(</span><span class="nb">- </span><span class="nv">n</span> <span class="mi">1</span><span class="p">)))))</span>
+           <span class="p">(</span><span class="nb">odd? </span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">n</span><span class="p">)</span> <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span> <span class="no">#f</span> <span class="p">(</span><span class="nb">even? </span><span class="p">(</span><span class="nb">- </span><span class="nv">n</span> <span class="mi">1</span><span class="p">))))))</span>
+           <span class="p">(</span><span class="nb">even? </span><span class="mi">9875321</span><span class="p">))</span>
+<span class="no">#f</span> <span class="c1">;; proper tail recursion is implemented</span>
+
+<span class="nv">&gt;</span> <span class="o">`</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="o">`</span><span class="p">(</span><span class="mi">10</span> <span class="o">,</span><span class="ss">',</span><span class="p">(</span><span class="nb">+ </span><span class="mi">2</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="o">`</span><span class="p">(</span><span class="mi">10</span> <span class="o">,</span><span class="ss">'5</span><span class="p">))</span> <span class="c1">;; nested quasiquote is not very easy to implement right</span>
+</pre></div>
+
+<h2>... with Fibers and Channels</h2>
+
+<p>Use the <code>go</code> macro to start new <code>fiber</code>s:</p>
+
+<div class="highlight"><pre><span class="nv">&gt;</span> <span class="p">(</span><span class="nf">go</span> <span class="p">(</span><span class="k">begin </span><span class="p">(</span><span class="nb">write </span><span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">write </span><span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="nb">write </span><span class="mi">3</span><span class="p">))</span>
+      <span class="p">(</span><span class="k">begin </span><span class="p">(</span><span class="nb">write </span><span class="ss">'a</span><span class="p">)</span> <span class="p">(</span><span class="nb">write </span><span class="ss">'b</span><span class="p">)</span> <span class="p">(</span><span class="nb">write </span><span class="ss">'c</span><span class="p">)))</span>
+<span class="mi">1</span><span class="nv">a2b3c</span> <span class="nv">&gt;</span> <span class="c1">;; this is one possible output</span>
+</pre></div>
+
+<p>The <code>fiber</code>s can communicate with each other using <code>chan</code>s:</p>
+
+<div class="highlight"><pre><span class="p">(</span><span class="k">define </span><span class="nv">ping-chan</span> <span class="p">(</span><span class="nf">make-chan</span><span class="p">))</span>
+<span class="p">(</span><span class="k">define </span><span class="nv">pong-chan</span> <span class="p">(</span><span class="nf">make-chan</span><span class="p">))</span>
+
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">ping</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">write </span><span class="p">(</span><span class="nf">receive</span> <span class="nv">ping-chan</span><span class="p">))</span> <span class="c1">;; receive and write "ping-"</span>
+  <span class="p">(</span><span class="nf">send</span> <span class="nv">pong-chan</span> <span class="ss">'pong-</span><span class="p">)</span> <span class="c1">;; and pong back</span>
+  <span class="p">(</span><span class="nf">ping</span><span class="p">))</span>
+
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">pong</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">send</span> <span class="nv">ping-chan</span> <span class="ss">'ping-</span><span class="p">)</span> <span class="c1">;; send a ping</span>
+  <span class="p">(</span><span class="nb">write </span><span class="p">(</span><span class="nf">receive</span> <span class="nv">pong-chan</span><span class="p">))</span> <span class="c1">;; and write the received "pong-"</span>
+  <span class="p">(</span><span class="nf">pong</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">go</span> <span class="p">(</span><span class="nf">ping</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">pong</span><span class="p">))</span>
+
+<span class="c1">;; the output will be ping-pong-ping-pong-ping-pong-...</span>
+</pre></div>
+
+<h2>Deadlock detection</h2>
+
+<p>If the <code>pong</code> function is written like this:</p>
+
+<div class="highlight"><pre><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">pong</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">write </span><span class="p">(</span><span class="nf">receive</span> <span class="nv">pong-chan</span><span class="p">))</span> <span class="c1">;; write the received "pong-"</span>
+  <span class="p">(</span><span class="nf">send</span> <span class="nv">ping-chan</span> <span class="ss">'ping-</span><span class="p">)</span> <span class="c1">;; and send a ping</span>
+  <span class="p">(</span><span class="nf">pong</span><span class="p">))</span>
+</pre></div>
+
+<p>The GoLio interpreter will detect the deadlock and raise exception:</p>
+
+<pre><code>$ ./golio deadlock-ping-pong.scm
+Dead_lock
+Fatal error: exception Type.Dead_lock
+Raised at file "src/repl.ml", line 51, characters 17-26
+Called from file "src/golio.ml", line 30, characters 10-215
+</code></pre>
+
+<h2>Implemented in OCaml</h2>
+
+<p>GoLio is mainly for me to learn the beautiful programming language OCaml while exploring lisp interpreter implementation and concurrent programming.</p>
+
+<p>The <code>fiber</code>s are implemented using <a href="http://caml.inria.fr/pub/docs/manual-ocaml/libref/Thread.html">OCaml threads</a>, and <code>chan</code>s are implemented using <a href="http://caml.inria.fr/pub/docs/manual-ocaml/libref/Event.html#TYPEchannel">Event.channel</a>.</p>
+
+<p>Deadlock detection is implemented by keep a record on how many threads are currently waiting/blocked, and how many threads are active/working. If all of the threads are blocked waiting for sending to or receiving from some channel, then we have a deadlock. For a certain channel, it is necessary to keep a record on how many threads are currently waiting for sending to or receiving from it. In that way, when a new send or receive request is issued, whether the calling thread will be blocked by this request can be known and counted.</p>
+
+<p>Buffered channels like in those in <a href="http://golang.org">Go</a> is once implemented but eventually abandoned in the 0.1 version, since my implementation using <a href="http://caml.inria.fr/pub/docs/manual-ocaml/libref/Queue.html#TYPEt">Queue.t</a> does not play well with the deadlock detection. But this feature will surely appear in version 0.2.</p>
+
+<h2>A Fully Working Example</h2>
+
+<p>Here is a <a href="https://github.com/tianyicui/golio/blob/master/tests/sieve.scm">prime sieve</a> implemented in GoLio:</p>
+
+<div class="highlight"><pre><span class="c1">;; send 2..n to chan `ch`</span>
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">gen</span> <span class="nv">ch</span> <span class="nv">n</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">let </span><span class="nv">loop</span> <span class="p">((</span><span class="nf">i</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">&lt;= </span><span class="nv">i</span> <span class="nv">n</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">begin</span>
+        <span class="p">(</span><span class="nf">send</span> <span class="nv">ch</span> <span class="nv">i</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">i</span> <span class="mi">1</span><span class="p">)))))</span>
+  <span class="p">(</span><span class="nf">close-chan</span> <span class="nv">ch</span><span class="p">))</span>
+
+<span class="c1">;; receive from chan `in` and filter out all multipliers of `m`, send the rest</span>
+<span class="c1">;; to chan `out`.</span>
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">filter</span> <span class="nv">in</span> <span class="nv">out</span> <span class="nv">m</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">x</span> <span class="p">(</span><span class="nf">receive</span> <span class="nv">in</span><span class="p">)))</span>
+    <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">eof-object? </span><span class="nv">x</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">close-chan</span> <span class="nv">out</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">begin</span>
+        <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">/=</span> <span class="mi">0</span> <span class="p">(</span><span class="nf">%</span> <span class="nv">x</span> <span class="nv">m</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">send</span> <span class="nv">out</span> <span class="nv">x</span><span class="p">))</span>
+        <span class="p">(</span><span class="nf">filter</span> <span class="nv">in</span> <span class="nv">out</span> <span class="nv">m</span><span class="p">)))))</span>
+
+<span class="c1">;; filter out all the non-primes from chan `in` and send the primes to chan `out`</span>
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">sieve</span> <span class="nv">in</span> <span class="nv">out</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">x</span> <span class="p">(</span><span class="nf">receive</span> <span class="nv">in</span><span class="p">)))</span>
+    <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">eof-object? </span><span class="nv">x</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">close-chan</span> <span class="nv">out</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">ch</span> <span class="p">(</span><span class="nf">make-chan</span><span class="p">)))</span>
+        <span class="p">(</span><span class="nf">send</span> <span class="nv">out</span> <span class="nv">x</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">go</span> <span class="p">(</span><span class="nf">filter</span> <span class="nv">in</span> <span class="nv">ch</span> <span class="nv">x</span><span class="p">))</span>
+        <span class="p">(</span><span class="nf">sieve</span> <span class="nv">ch</span> <span class="nv">out</span><span class="p">)))))</span>
+
+<span class="c1">;; get the threads going</span>
+<span class="p">(</span><span class="k">define </span><span class="nv">in</span> <span class="p">(</span><span class="nf">make-chan</span><span class="p">))</span>
+<span class="p">(</span><span class="k">define </span><span class="nv">out</span> <span class="p">(</span><span class="nf">make-chan</span><span class="p">))</span>
+<span class="p">(</span><span class="nf">go</span> <span class="p">(</span><span class="nf">gen</span> <span class="nv">in</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">sieve</span> <span class="nv">in</span> <span class="nv">out</span><span class="p">))</span>
+
+<span class="c1">;; receive all the primes and print them</span>
+<span class="p">(</span><span class="k">let </span><span class="nv">loop</span> <span class="p">()</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">x</span> <span class="p">(</span><span class="nf">receive</span> <span class="nv">out</span><span class="p">)))</span>
+    <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">not </span><span class="p">(</span><span class="nb">eof-object? </span><span class="nv">x</span><span class="p">))</span>
+      <span class="p">(</span><span class="nf">begin</span>
+        <span class="p">(</span><span class="nb">write </span><span class="nv">x</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">newline</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">loop</span><span class="p">)))))</span>
+</pre></div>
+
+<h2>Thanks</h2>
+
+<p>GoLio is my very first OCaml project. It is currently in a very alpha state and under heavy development. I learned so much from writing and polishing it and had so much fun.</p>
+
+<p>If you have any comments, suggestions or questions, please feel free to <a href="mailto:tianyicui@gmail.com">get in touch</a>. Thanks for viewing!</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">GoLio maintained by <a href="http://tianyicui.com">tianyicui</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-8949203-5");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
