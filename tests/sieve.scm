@@ -18,6 +18,7 @@
           (send out x))
         (filter in out m)))))
 
+;; filter out all the non-primes from chan `in` and send the primes to chan `out`
 (define (sieve in out)
   (let ((x (receive in)))
     (if (eof-object? x)
@@ -27,10 +28,13 @@
         (go (filter in ch x))
         (sieve ch out)))))
 
+;; define chans and get the threads going
 (define in (make-chan))
 (define out (make-chan))
 (go (gen in 1000)
     (sieve in out))
+
+;; receive all the primes and print them
 (let loop ()
   (let ((x (receive out)))
     (if (not (eof-object? x))
