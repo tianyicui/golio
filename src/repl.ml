@@ -10,7 +10,7 @@ let repl conf =
       | Some lb -> lb
       | None -> Lexing.from_channel in_c
   in
-    Port.init lb in_c out_c;
+    Prim_port.init lb in_c out_c;
     let parse () = Parser.parse Lexer.tokens lb in
     let rec go env =
       let open Printf in

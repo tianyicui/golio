@@ -8,8 +8,8 @@ Parser
 Env
 Prim_func
 Prim_macro
+Prim_port
 Prim_env
-Port
 Chan
 Promise
 

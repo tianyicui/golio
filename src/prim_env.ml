@@ -7,7 +7,7 @@ let prim_env () =
   in
     map_and_bind
       (fun k v -> v)
-      (Port.prim_ports ());
+      (Prim_port.prim_ports ());
     map_and_bind
       (fun k v -> prim_func k v)
       Prim_func.prim_functions;

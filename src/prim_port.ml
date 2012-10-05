@@ -9,6 +9,7 @@ let stdout =
   ref Void
 ;;
 
+(* TODO: add stderr *)
 let prim_ports () =
   [
     "stdin", !stdin;
