@@ -25,24 +25,6 @@ let rec apply func args =
   in
     snd (eval_all {env with top_level = false} func.body)
 
-and map env sexp_list =
-  let env, rst_lst =
-    L.fold_left
-      (fun (env', lst) sexp ->
-         let env'',rst = eval env' sexp in
-           env'', (rst :: lst))
-      (env, [])
-      sexp_list
-  in env, (L.rev rst_lst)
-
-and eval_all env sexp_list =
-  match sexp_list with
-    | [] -> env, Void
-    | [sexp] -> eval ~tail:true env sexp
-    | x :: xs ->
-        let env', _ = eval env x in
-          eval_all env' xs
-
 and eval ?(tail=false) env sexp =
   let rst =
     match sexp with
@@ -71,4 +53,22 @@ and eval ?(tail=false) env sexp =
       | _ -> value
   in
     if tail && !Runtime.Eval.tco then rst else fst rst, expand_thunk (snd rst)
+
+and map env sexp_list =
+  let env, rst_lst =
+    L.fold_left
+      (fun (env', lst) sexp ->
+         let env'',rst = eval env' sexp in
+           env'', (rst :: lst))
+      (env, [])
+      sexp_list
+  in env, (L.rev rst_lst)
+
+and eval_all env sexp_list =
+  match sexp_list with
+    | [] -> env, Void
+    | [sexp] -> eval ~tail:true env sexp
+    | x :: xs ->
+        let env', _ = eval env x in
+          eval_all env' xs
 ;;
